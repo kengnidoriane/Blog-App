@@ -1,5 +1,5 @@
 import { useState, } from 'react';
-import axios from 'axios'
+// import axios from 'axios';
 import { Box, Stack, TextField, Button, Typography } from '@mui/material';
 import secure from '../assets/secure.png'
 import Logo from '../assets/logo1.png'
@@ -9,8 +9,11 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await axios.post('http://localhost:5000/api/')
+    console.log({email, password});
+
+    // await axios.post('http://localhost:5000/api/')
   };
+  
 
   return (
     <Stack 
@@ -37,14 +40,27 @@ const LoginPage = () => {
         <form action="post" onSubmit={handleSubmit}>
         <Stack direction={"column"} gap={4}>
           
-          <TextField id="outlined-basic" label="Email" variant="outlined" type='email' required />
-          <TextField id="outlined-basic" label="Password" variant="outlined" type='password'  required />
+          <TextField 
+                     id="outlined-basic" 
+                     label="Email" 
+                     variant="outlined" 
+                     type='email' 
+                     onChange={(e)=> setEmail(e.target.value)}
+                     required />
+          <TextField id="outlined-basic" 
+                     label="Password" 
+                     variant="outlined" 
+                     type='password'  
+                     onChange={(e)=> setPassword(e.target.value)}
+                     required />
           <Button   style={{
             backgroundColor: "#007b2d",
             padding: "12px 36px",
             fontSize: "18px"
             }} 
-            variant="contained" type='submit' className='connexion__button'>Log in</Button>
+            variant="contained" 
+            type='submit' 
+            className='connexion__button'>Log in</Button>
         </Stack>
         </form>
       </Stack> 
