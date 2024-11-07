@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 
 // connexion a la base de donnee
 
-mongoose.connect('mongodb+srv://esmeblare:mDmvjsqedKW9xQBs@dev-blog.kbsxc.mongodb.net/')
+mongoose.connect(process.env.MONGODB_URL)
 .then(() => console.log('i already connected to mongo db database'))
 .catch((e) => console.log('connection error:', e)
 )

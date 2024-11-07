@@ -33,7 +33,8 @@ app.get('/api', (req, res) => {
 });
 
 // demarrage du serveur
-app.listen(5000, () => console.log(`App is running at 5000...`)
+const PORT = process.env.PORT;
+app.listen(PORT, () => console.log(`App is running at port ${PORT}...`)
 )
 
 

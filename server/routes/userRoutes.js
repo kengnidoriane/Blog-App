@@ -5,8 +5,9 @@ const { verifyToken } = require('../middlewares/auth')
 const userRouter = express.Router();
 const userController = require('../controllers/userController');
 
-userRouter.post('/register', userController.registerUser);
-userRouter.post('/login', userController.loginUser);
+userRouter.post('/auth/register', userController.registerUser);
+userRouter.post('/auth/login', userController.loginUser);
+userRouter.get('/profile', userController.getUserProfile)
 
 userRouter.post('/:userId/follow', verifyToken,  userController.followUser);
 userRouter.post('/:userId/unfollow', verifyToken,  userController.unFollowUser);

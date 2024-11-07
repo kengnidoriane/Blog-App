@@ -1,5 +1,7 @@
-import  { useState, useNavigate } from 'react';
-import axios from 'axios';
+import  { useState } from 'react';
+import {  useNavigate, Link } from 'react-router-dom'
+import useAuth from '../hooks/useAuth';
+import { validateEmail, validatePassword,validateName } from '../utils/validators';
 import { Stack, Box, TextField, Button, Typography } from '@mui/material';
 import Logo from '../assets/logo1.png'
 import signup from '../assets/signUpImage.png'
@@ -10,6 +12,9 @@ const SignupPage = () => {
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const { signUp } = useAuth()
+  const navigate = useNavigate()
   
   const [image, setImage] = useState(null);
 
@@ -33,7 +38,21 @@ const SignupPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-   
+    setError('');
+    
+    if (!validateName(name)) {
+      setError('Nom invalide')
+      return;
+    };
+
+    if (!validateEmail(email)) {
+      setError('Invalid Email')
+      return;
+    };
+
+    if (!validatePassword(password)) {
+      setError('Password must contain at least 6 caracters')
+    }
     try {
       
       let imageUrl = null;
@@ -42,44 +61,16 @@ const SignupPage = () => {
         imageUrl = await uploadImage(image, 'profileImages');
       }
 
-      const userData = {
-        name,
-        username: userName,
-        email,
-        password,
-        image: imageUrl
-      };
+      await signUp(name, userName, email, password, imageUrl);
+      navigate('/dashboard');
 
-      console.log('Données envoyées:', userData); // Pour le débogage
-
-      const response = await axios.post('http://localhost:5000/api/user/register', userData, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      console.log('Réponse du serveur:', response.data);
-      console.log('utilisateur enregistre:', response.data);
-      
-      
-    } catch (error) {
-      console.error('Erreur détaillée:', error);
+    } catch (err) {
+      setError(err.message || 'Une erreur est survenue lors de l\'inscription')
     
-      if (error.response) {
-        // Le serveur a répondu avec un status code en dehors de 2xx
-        console.error('Erreur serveur:', error.response.data);
-        alert(error.response.data.message || 'Erreur lors de l\'inscription');
-      } else if (error.request) {
-        // La requête a été faite mais pas de réponse
-        console.error('Pas de réponse du serveur');
-        alert('Impossible de contacter le serveur');
-      } else {
-        // Erreur lors de la configuration de la requête
-        console.error('Erreur:', error.message);
-        alert('Erreur lors de l\'inscription');
-      }
+      
     }
 
-    // ****************
+  
   };
 
   return (
@@ -94,18 +85,18 @@ const SignupPage = () => {
           <img src={signup} alt="Connexion Image" />
       </Box>
       <Stack className='h-full w-full md:w-1/2 flex flex-col gap-4 items-center justify-center bg-[#def3df]'>
-        <Box >
-          <img src={Logo} alt="" className='w-24 rounded-lg'/>
+        <Box className='flex justify-center align-center' >
+          <img src={Logo} alt="" className='w-2/5 bg-center rounded-lg'/>
         </Box>
         <Stack
           width={'60%'}
           gap={5}
-          className='h-4/5 w-96 border '
+          className='h-4/5 w-96 '
         >
         <Typography variant='h4' textAlign={'center'} className='mb-8 text-center'>Create your account</Typography>
         <form action="post" onSubmit={handleSubmit}>
         <Stack direction={"column"} gap={4}>
-          
+          {error && <p>{error}</p>}
           <TextField 
             type="file" 
             inputProps={{ accept: 'image/*' }} 
@@ -117,11 +108,10 @@ const SignupPage = () => {
             variant="outlined" 
             type='text' 
             onChange={(e) => setName(e.target.value)}
-
             required 
           />
+          
           <TextField 
-            id="outlined-basic" 
             label="Username" 
             variant="outlined" 
             type='text' 
@@ -129,7 +119,7 @@ const SignupPage = () => {
             required 
           />
           <TextField 
-            id="outlined-basic" 
+             
             label="Email" 
             variant="outlined" 
             type='email' 
@@ -137,7 +127,6 @@ const SignupPage = () => {
             required 
           />
           <TextField 
-            id="outlined-basic" 
             label="Password" 
             variant="outlined" 
             type='password'  
@@ -145,7 +134,6 @@ const SignupPage = () => {
             required 
           />
           <TextField 
-            id="outlined-basic" 
             label="Password Confirmation" 
             variant="outlined" 
             type='password'  
@@ -164,37 +152,11 @@ const SignupPage = () => {
         </Stack>
         </form>
       </Stack> 
+     <p className=''>Already have an account <Link to='/login' className='text-blue-500 underline font-medium'>Log In</Link></p>
+
     </Stack>
-     
    </Stack>
-    // <Container>
-    //   <Typography variant="h4" gutterBottom>Inscription</Typography>
-    //   <form onSubmit={handleSubmit}>
-    //     <TextField
-    //       fullWidth
-    //       label="Nom"
-    //       value={name}
-    //       onChange={(e) => setName(e.target.value)}
-    //       margin="normal"
-    //     />
-    //     <TextField
-    //       fullWidth
-    //       label="Email"
-    //       value={email}
-    //       onChange={(e) => setEmail(e.target.value)}
-    //       margin="normal"
-    //     />
-    //     <TextField
-    //       fullWidth
-    //       label="Mot de passe"
-    //       type="password"
-    //       value={password}
-    //       onChange={(e) => setPassword(e.target.value)}
-    //       margin="normal"
-    //     />
-    //     <Button variant="contained" color="primary" type="submit">Sinscrire</Button>
-    //   </form>
-    // </Container>
+   
   );
 };
 
