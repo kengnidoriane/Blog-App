@@ -1,37 +1,31 @@
-import api from './api';
+// src/services/authService.js
+import api, { setAuthTokens, clearAuthTokens } from './api';
 
-const AuthService = {
-  async login(email, password) {
-    try {
-      const response = await api.post('/auth/login', { email, password });
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-      }
-      return response.data;
-    } catch (error) {
-      throw error.response.data;
+export const authService = {
+  async register(userData) {
+    const response = await api.post('/auth/register', userData);
+    if (response.data.token && response.data.refreshToken) {
+      setAuthTokens(response.data.token, response.data.refreshToken);
     }
+    return response.data;
   },
 
-  async signup(name, userName, email, password, imageUrl) {
-    try {
-      const response = await api.post('/auth/register', { name, userName, email, password, imageUrl });
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-      }
-      return response.data;
-    } catch (error) {
-      throw error.response.data;
+  async login(credentials) {
+    const response = await api.post('/auth/login', credentials);
+    if (response.data.token && response.data.refreshToken) {
+      setAuthTokens(response.data.token, response.data.refreshToken);
     }
+    return response.data;
   },
 
   logout() {
-    localStorage.removeItem('token');
+    clearAuthTokens();
+    return api.post('/auth/logout');
   },
 
-  getCurrentUser() {
-    return JSON.parse(localStorage.getItem('user'));
+  async getCurrentUser() {
+    const response = await api.get('/auth/me');
+    return response.data;
   },
+
 };
-
-export default AuthService;
