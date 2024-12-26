@@ -36,9 +36,11 @@ exports.registerUser = [
   handleValidationErrors, // Gestion des erreurs de validation
 
   async (req, res) => {
-    const { name, username, email, password, image } = req.body;
 
     try {
+      const { name, username, email, password, image } = req.body;
+
+
       // Vérifier si l'utilisateur existe déjà
       const existingEmail = await User.findOne({ email });
       if (existingEmail) {
@@ -69,6 +71,13 @@ exports.registerUser = [
       // Générer un token JWT
       const token = generateToken(savedUser._id);
 
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 3600000
+      })
+
       res.status(201).json({
         userId: savedUser._id,
         username: savedUser.username,
@@ -85,9 +94,11 @@ exports.registerUser = [
 
 // Connexion d'un utilisateur
 exports.loginUser = async (req, res) => {
-  const { email, password } = req.body;
 
   try {
+    const { email, password } = req.body;
+
+
     // Vérifier si l'utilisateur existe
     const existingUser = await User.findOne({ email });
     if (!existingUser) {
@@ -103,6 +114,14 @@ exports.loginUser = async (req, res) => {
     // Générer un token JWT
     const token = generateToken(existingUser._id);
 
+     // Définir le cookie
+     res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 3600000 // 1 heure
+    });
+
     res.status(200).json({
       userId: existingUser._id,
       email: existingUser.email,
@@ -111,6 +130,12 @@ exports.loginUser = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Something went wrong', error });
   }
+};
+
+// Ajoutez une route de déconnexion
+exports.logoutUser = (req, res) => {
+  res.clearCookie('token');
+  res.status(200).json({ message: 'Déconnexion réussie' });
 };
 
 // recuperer tous les users

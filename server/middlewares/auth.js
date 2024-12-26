@@ -12,9 +12,10 @@ const verifyToken = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    req.userId = decoded.id;
+    req.user = decoded;
     next();
   } catch (error) {
+    res.clearCookie('token');
     return res.status(400).json({message: 'Token invalide'});
   }
 }

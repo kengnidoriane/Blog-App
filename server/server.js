@@ -17,7 +17,10 @@ const app = express();
 database;
 
 // middleware globaux
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true,
+}));
 app.use(helmet());
 app.use(morgan('tiny'))
 app.use(express.json())
