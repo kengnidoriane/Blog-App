@@ -1,71 +1,71 @@
-import { useContext, useState } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import AuthService from '../services/AuthService';
+// import { useContext, useState } from 'react';
+// import { AuthContext } from '../context/AuthContext';
+// import AuthService from '../services/AuthService';
 
-export const useAuth = () => {
-  const { user, setUser } = useContext(AuthContext);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+// export const useAuth = () => {
+//   const { user, setUser } = useContext(AuthContext);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState(null);
 
-  const signUp = async (name, username, email, password, imageUrl) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await AuthService.signUp({
-        name,
-        username,
-        email,
-        password,
-        imageUrl
-      });
-      setUser(response.user);
-      return response;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
+//   const signUp = async (name, username, email, password, imageUrl) => {
+//     setLoading(true);
+//     setError(null);
+//     try {
+//       const response = await AuthService.signUp({
+//         name,
+//         username,
+//         email,
+//         password,
+//         imageUrl
+//       });
+//       setUser(response.user);
+//       return response;
+//     } catch (err) {
+//       setError(err.message);
+//       throw err;
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  const login = async (email, password) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await AuthService.login(email, password);
-      setUser(response.user);
-      return response;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
+//   const login = async (email, password) => {
+//     setLoading(true);
+//     setError(null);
+//     try {
+//       const response = await AuthService.login(email, password);
+//       setUser(response.user);
+//       return response;
+//     } catch (err) {
+//       setError(err.message);
+//       throw err;
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  const logout = async () => {
-    setLoading(true);
-    try {
-      await AuthService.logout();
-      setUser(null);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+//   const logout = async () => {
+//     setLoading(true);
+//     try {
+//       await AuthService.logout();
+//       setUser(null);
+//     } catch (err) {
+//       setError(err.message);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  return {
-    user,
-    loading,
-    error,
-    signUp,
-    login,
-    logout
-  };
-};
+//   return {
+//     user,
+//     loading,
+//     error,
+//     signUp,
+//     login,
+//     logout
+//   };
+// };
 
-export default useAuth;
+// export default useAuth;
 // import { useContext } from 'react';
 // import { AuthContext } from '../context/AuthContext';
 // import AuthService from '../services/AuthService';

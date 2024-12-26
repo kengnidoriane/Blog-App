@@ -6,7 +6,7 @@ import UserProfilePage from './pages/UserProfilePage';
 import CreatePostPage from './pages/CreatePostPage';
 import SinglePostPage from './pages/SinglePostPage';
 import { AuthProvider } from './context/AuthContext';
-import { ProtectedRoute } from './components/ProtectedRoute'
+import { ProtectedRoute } from './components/common/ProtectedRoute'
 import './App.css'
 
 const App = () => {

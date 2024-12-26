@@ -1,141 +1,50 @@
+// client/src/services/api.js
 import axios from 'axios';
-import Cookies from 'js-cookie';
+
+const API_URL = 'http://localhost:5000/api';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: API_URL,
   headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true, // Important pour les cookies
+    'Content-Type': 'application/json'
+  }
 });
 
-// Intercepteur pour les requêtes
-api.interceptors.request.use(
-  (config) => {
-    const token = Cookies.get('accessToken');
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+// Intercepteur pour ajouter le token aux requêtes
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-);
+  return config;
+});
 
-// Intercepteur pour les réponses avec gestion du refresh token
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-
-    // Si l'erreur est 401 et qu'on n'a pas déjà essayé de refresh
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        const refreshToken = Cookies.get('refreshToken');
-        const response = await api.post('/auth/refresh-token', { refreshToken });
-        
-        if (response.data.accessToken) {
-          Cookies.set('accessToken', response.data.accessToken, { 
-            expires: 1, // 1 jour
-            secure: true,
-            sameSite: 'strict'
-          });
-          
-          // Réessayer la requête originale avec le nouveau token
-          originalRequest.headers['Authorization'] = `Bearer ${response.data.accessToken}`;
-          return api(originalRequest);
-        }
-      } catch (refreshError) {
-        // En cas d'échec du refresh, déconnexion
-        Cookies.remove('accessToken');
-        Cookies.remove('refreshToken');
-        window.location.href = '/login';
-        return Promise.reject(refreshError);
-      }
-    }
-
-    return Promise.reject(error);
+export const authService = {
+  register: (userData) => api.post('/auth/register', userData),
+  login: (credentials) => api.post('/auth/login', credentials),
+  logout: () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
   }
-);
-
-export const setAuthTokens = (accessToken, refreshToken) => {
-  Cookies.set('accessToken', accessToken, { 
-    expires: 1, // 1 jour
-    secure: true,
-    sameSite: 'strict'
-  });
-  Cookies.set('refreshToken', refreshToken, { 
-    expires: 7, // 7 jours
-    secure: true,
-    sameSite: 'strict'
-  });
 };
 
-export const clearAuthTokens = () => {
-  Cookies.remove('accessToken');
-  Cookies.remove('refreshToken');
+export const postService = {
+  getAllPosts: () => api.get('/posts'),
+  getPost: (id) => api.get(`/posts/${id}`),
+  createPost: (postData) => api.post('/posts', postData),
+  updatePost: (id, postData) => api.put(`/posts/${id}`, postData),
+  deletePost: (id) => api.delete(`/posts/${id}`),
+  uploadImage: (formData) => api.post('/upload', formData),
+  getPostsByCategory: (category) => api.get(`/posts?category=${category}`)
 };
 
-export default api;
-// import axios from 'axios';
-// import Cookies from 'js-cookie';
+export const userService = {
+  updateUser: (id, userData) => api.put(`/users/${id}`, userData),
+  deleteUser: (id) => api.delete(`/users/${id}`),
+  getUser: (id) => api.get(`/users/${id}`)
+};
 
-// const api = axios.create({
-//   baseURL: import.meta.env.VITE_API_URL,
-//   headers: {
-//     'Content-Type': 'application/json',
-//   },
-//   withCredentials: true,
-// });
-
-// api.interceptors.request.use(
-//   (config) => {
-//   const token = Cookies.get('token');
-
-//   if (token) {
-//     config.headers['Authorization'] = `Bearer ${token}`;
-//   }
-//   return config;
-
-// }, (error)=> {
-//   return Promise.reject(error);
-// });
-
-// api.interceptors.response.use(
-//   (response) => response,
-//   async (error) => {
-//     if (error.response.status === 401 && !error.config._retry) {
-//       error.config._retry = true;
-//       try {
-//         const refreshToken = Cookies.get('refreshToken');
-//         const res = await api.post('/auth/refresh-token', { refreshToken});
-//         if (res.data.token) {
-//           Cookies.set('token', res.data.token, { expires: 1, secure: true, sameSite: 'Strict'});
-//           api.defaults.headers['Authorization'] = `Bearer ${res.data.token}`;
-//           return api(error.config);
-//         }
-//       } catch (refreshToken) {
-//         Cookies.remove('token');
-//         Cookies.remove('refreshToken');
-//         window.location.href = '/login';
-//         return Promise.reject(refreshToken);
-//       }
-//     }
-//     return Promise.reject(error);
-//   }
-// );
-
-// export const setAuthTokens = (token, refreshToken) => {
-//   Cookies.set('token', token, { expires: 1, secure: true, sameSite: 'strict' });
-//   Cookies.set('refreshToken', refreshToken, { expires: 7, secure: true, samSite: 'strict' });
-// };
-
-// export const clearAuthTokens = () => {
-//   Cookies.remove('token');
-//   Cookies.remove('refreshToken')
-// }
-
-// export default api;
+export const categoryService = {
+  getAllCategories: () => api.get('/categories'),
+  createCategory: (categoryData) => api.post('/categories', categoryData)
+};

@@ -15,10 +15,10 @@ import SearchIcon from '@mui/icons-material/Search';
 import MenuIcon from '@mui/icons-material/Menu';
 import Logo from '../assets/logo1.png';
 import '../index.css'
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { isAuthenticated, user,  dispatch } = useAuth();
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMenuAnchor, setMobileMenuAnchor] = useState(null);
 
@@ -36,12 +36,7 @@ const Navbar = () => {
   };
 
   const handleLogout = async () => {
-    try {
-      await logout();
-      handleMenuClose();
-    } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
-    }
+    dispatch({ type: 'LOGOUT'})
   };
 
   return (
@@ -86,7 +81,7 @@ const Navbar = () => {
 
         {/* Menu Desktop */}
         <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
-          {user ? (
+          {isAuthenticated ? (
             <>
               <Button
                 href='/create-post'
@@ -105,8 +100,8 @@ const Navbar = () => {
                 sx={{ p: 0 }}
               >
                 <Avatar
-                  alt={user.name}
-                  src={user.profileImage}
+                  alt={user?.name}
+                  src={user?.profileImage}
                   sx={{ width: 40, height: 40 }}
                 />
               </IconButton>
@@ -148,7 +143,7 @@ const Navbar = () => {
           open={Boolean(anchorEl)}
           onClose={handleMenuClose}
         >
-          {user && (
+          {isAuthenticated && (
             <>
               <MenuItem onClick={handleMenuClose} component={Link} href="/profile">
                 Profile
@@ -168,7 +163,7 @@ const Navbar = () => {
           open={Boolean(mobileMenuAnchor)}
           onClose={handleMenuClose}
         >
-          {user ? (
+          {isAuthenticated ? (
             <>
               <MenuItem onClick={handleMenuClose} component={Link} href="/create-post">
                 Create Post

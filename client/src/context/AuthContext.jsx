@@ -1,46 +1,76 @@
-import React, { createContext, useState, useEffect } from 'react';
-import AuthService from '../services/AuthService';
+import { createContext, useReducer, useEffect, useContext } from 'react';
+// import AuthService from '../services/AuthService';
 
-export const AuthContext = createContext(null);
+export const AuthContext = createContext();
+
+const authReducer = (state, action) => {
+
+  switch(action.type) {
+    case 'LOGIN':
+      localStorage.setItem('token', action.payload.token);
+      localStorage.setItem('user', JSON.stringify(action.payload.user))
+      return { 
+        ...state,
+        user: action.payload,
+        token: action.payload.token,
+        isAuthenticated: true
+      };
+    case 'LOGOUT': 
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      return { 
+        ...state,
+        user: null,
+        token: null,
+        isAuthenticated: false 
+      };
+    case 'UPDATE_USER':
+      localStorage.setItem('user',JSON.stringify(action.payload));
+      return {
+        ...state,
+        user: action.payload
+      };
+    default:
+      return state;
+  }
+}
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [state, dispatch] = useReducer(authReducer, {
+    user: null,
+    token: null,
+    isAuthenticated: false,
+  })
 
   useEffect(() => {
-    const initAuth = async () => {
-      try {
-        const userData = await AuthService.getCurrentUser();
-        if (userData) {
-          setUser(userData);
-        }
-      } catch (error) {
-        console.error('Erreur lors de l\'initialisation de l\'auth:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user'));
 
-    initAuth();
+    if ( token && user ) {
+      dispatch({
+        type: 'LOGIN',
+        payload: { token, user }
+      });
+    }
   }, []);
 
-  const value = {
-    user,
-    setUser,
-    loading,
-    isAuthenticated: !!user,
-  };
 
-  if (loading) {
-    return <div>Chargement...</div>; // Ou votre composant de chargement
-  }
+
+  // if (loading) {
+  //   return <div>Chargement...</div>; // Ou votre composant de chargement
+  // }
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{...state, dispatch}}>
       {children}
     </AuthContext.Provider>
   );
 };
-// export const UseAuth = () => {
-//   return useContext(AuthContext);
-// }
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth doit être utilisé dans un AuthProvider');
+  }
+  return context;
+};

@@ -2,7 +2,7 @@
 
 import  { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
 import { validateEmail, validatePassword, validateName } from '../utils/validators';
 import { Stack, Box, TextField, Button, Typography, CircularProgress } from '@mui/material';
 import Logo from '../assets/logo1.png';

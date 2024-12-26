@@ -1,17 +1,21 @@
 import { useState, } from 'react';
 import { useNavigate, Link  } from 'react-router-dom';
-import useAuth from '../hooks/useAuth';
-import { validateEmail, validatePassword } from '../utils/validators';
+import {useAuth} from '../context/AuthContext';
+import { authService } from '../services/api'
+// import { validateEmail, validatePassword } from '../utils/validators';
 import { Box, Stack, TextField, Button, Typography } from '@mui/material';
 import secure from '../assets/secure.png'
 import Logo from '../assets/logo1.png'
 
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+
   const [error, setError] = useState('');
-  const { login } =  useAuth();
+  const { dispatch } =  useAuth();
   const navigate = useNavigate();
 
 
@@ -19,21 +23,19 @@ const LoginPage = () => {
     e.preventDefault();
     setError('');
 
-    if (validateEmail(email)) {
-      setError('Email invalide');
-      return;
-    }
-
-    if (validatePassword(password)) {
-      setError('Le mot de passe doit obtenir au moins 6 caracteres')
-    }
-    console.log({email, password});
-
     try {
-      await login(email, password);
-      navigate('/dashboard')
-    } catch (err) {
-      setError(err.message || 'Une erreur est survenue lors de la connexion')
+      const response = await authService.login(formData);
+      dispatch({
+        type: 'LOGIN',
+        payload: {
+          user: response.user,
+          token: response.token
+        }
+      });
+      navigate('/');
+    }
+    catch (err) {
+      setError(err.response.data?.message || 'Une errreur est survenue')
     }
     // await axios.post('http://localhost:5000/api/')
   };
@@ -61,21 +63,23 @@ const LoginPage = () => {
           className='h-2/5 w-96 border '
         >
         <Typography variant='h4' textAlign={'center'} className='mb-8 sm:mb-4 text-center'>Log In</Typography>
+        {error && (
+          <div className="bg-red-100 text-red-700 p-3 rounded">{error}</div>
+        )}
         <form action="post" onSubmit={handleSubmit}>
         <Stack direction={"column"} gap={4}>
-          {error && <p>{error}</p>}
           <TextField 
                      id="outlined-basic" 
                      label="Email" 
                      variant="outlined" 
                      type='email' 
-                     onChange={(e)=> setEmail(e.target.value)}
+                     onChange={(e)=> setFormData.email(e.target.value)}
                      required />
           <TextField id="outlined-basic" 
                      label="Password" 
                      variant="outlined" 
                      type='password'  
-                     onChange={(e)=> setPassword(e.target.value)}
+                     onChange={(e)=> setFormData.password(e.target.value)}
                      required />
           <Button   style={{
             backgroundColor: "#007b2d",
