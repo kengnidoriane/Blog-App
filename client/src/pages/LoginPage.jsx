@@ -18,6 +18,14 @@ const LoginPage = () => {
   const { dispatch } =  useAuth();
   const navigate = useNavigate();
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,7 +43,7 @@ const LoginPage = () => {
       navigate('/');
     }
     catch (err) {
-      setError(err.response.data?.message || 'Une errreur est survenue')
+      setError(err.response?.data?.message || 'Une errreur est survenue')
     }
     // await axios.post('http://localhost:5000/api/')
   };
@@ -73,13 +81,13 @@ const LoginPage = () => {
                      label="Email" 
                      variant="outlined" 
                      type='email' 
-                     onChange={(e)=> setFormData.email(e.target.value)}
+                     onChange={handleChange}
                      required />
           <TextField id="outlined-basic" 
                      label="Password" 
                      variant="outlined" 
                      type='password'  
-                     onChange={(e)=> setFormData.password(e.target.value)}
+                     onChange={handleChange}
                      required />
           <Button   style={{
             backgroundColor: "#007b2d",

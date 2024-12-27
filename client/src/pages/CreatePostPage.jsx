@@ -1,16 +1,15 @@
 // src/pages/CreatePostPage.js
-import React, { useState } from 'react';
 import CreatePostForm from '../components/CreatePostForm';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 
 const CreatePostPage = () => {
   
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
-  const handleBack = () => {
-    navigate(-1);
-  };
+  // const handleBack = () => {
+  //   navigate(-1);
+  // };
 
   return (
     <div className="container mx-auto p-4">

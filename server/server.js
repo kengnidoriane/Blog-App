@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express')
-const mongoose = require('mongoose')
+// const mongoose = require('mongoose')
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -17,10 +17,7 @@ const app = express();
 database;
 
 // middleware globaux
-app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true,
-}));
+app.use(cors());
 app.use(helmet());
 app.use(morgan('tiny'))
 app.use(express.json())
