@@ -12,13 +12,15 @@ const ArticleSchema = new Schema({
   },
   tags: [{  //les [] c'est pour pouvoir stocke plusieurs tags par articles
     type: String,
-    required: true,
   }],
   author: {
     type: Schema.Types.ObjectId, 
     ref : 'User',
     required: true,
-  }, 
+  },
+  image: {
+    type: String,
+  },
   createDate: {
     type: Date,
     default: Date.now,

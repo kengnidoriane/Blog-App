@@ -7,4 +7,13 @@ const apiArticle = axios.create({
   },
 });
 
+// Intercepteur pour ajouter le token aux requêtes
+apiArticle.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export default apiArticle;
