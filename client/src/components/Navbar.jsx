@@ -1,292 +1,93 @@
 import { useState } from 'react';
-import {
-  AppBar,
-  Box,
-  Toolbar,
-  Link,
-  IconButton,
-  InputBase,
-  Menu,
-  MenuItem,
-  Button,
-  Avatar
-} from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import MenuIcon from '@mui/icons-material/Menu';
+import { Link } from 'react-router-dom';
 import Logo from '../assets/logo1.png';
-import '../index.css'
-import { useAuth } from '../context/AuthContext';
+import { useAuthStore } from '../store/authStore';
 
 const Navbar = () => {
-  const { isAuthenticated, user,  dispatch } = useAuth();
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [mobileMenuAnchor, setMobileMenuAnchor] = useState(null);
+  const { isAuthenticated, user, logout } = useAuthStore();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMobileMenuOpen = (event) => {
-    setMobileMenuAnchor(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setMobileMenuAnchor(null);
-  };
-
-  const handleLogout = async () => {
-    dispatch({ type: 'LOGOUT'})
+  const handleLogout = () => {
+    logout();
   };
 
   return (
-    <AppBar position="static" sx={{ backgroundColor: 'white' }} className='w-full'>
-      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
-        {/* Logo */}
-        <Link href='/' sx={{ textDecoration: 'none' }}>
-          <Box
-            component='img'
-            sx={{
-              maxWidth: '100px',
-              maxHeight: '40px',
-              borderRadius: '20%',
-              margin: '0 20px'
-            }}
-            src={Logo}
-            alt="Logo"
-          />
+    <nav className="bg-white shadow-md w-full">
+      <div className="flex justify-between items-center px-4 py-2">
+        <Link to="/" className="flex items-center">
+          <img src={Logo} alt="Logo" className="w-16 h-10 rounded" />
         </Link>
 
-        {/* Barre de recherche */}
-        <Box sx={{ display: { xs: 'none', md: 'flex' }, flexGrow: 1, mx: 2 }}>
-          <Box sx={{ 
-            display: 'flex', 
-            border: '1px solid #ddd', 
-            borderRadius: '10px', 
-            padding: '0 10px',
-            width: '100%',
-            maxWidth: '600px',
-            margin: '0 auto'
-          }}>
-            <IconButton type="submit" aria-label="search">
-              <SearchIcon />
-            </IconButton>
-            <InputBase
-              fullWidth
+        <div className="hidden md:flex flex-1 max-w-2xl mx-4">
+          <div className="flex w-full border border-gray-300 rounded-lg px-3 py-2">
+            <svg className="w-5 h-5 text-gray-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
               placeholder="Rechercher..."
-              inputProps={{ 'aria-label': 'search' }}
+              className="w-full outline-none"
             />
-          </Box>
-        </Box>
+          </div>
+        </div>
 
-        {/* Menu Desktop */}
-        <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
+        <div className="hidden md:flex items-center space-x-4">
           {isAuthenticated ? (
             <>
-              <Button
-                href='/create-post'
-                variant="outlined"
-                sx={{ 
-                  mr: 2,
-                  color: '#007b2d',
-                  borderColor: '#007b2d',
-                  '&:hover': { backgroundColor: '#def3df' }
-                }}
+              <Link
+                to="/create-post"
+                className="px-4 py-2 border border-green-700 text-green-700 rounded hover:bg-green-50"
               >
                 Create Post
-              </Button>
-              <IconButton
-                onClick={handleMenuOpen}
-                sx={{ p: 0 }}
-              >
-                <Avatar
-                  alt={user?.name}
-                  src={user?.profileImage}
-                  sx={{ width: 40, height: 40 }}
-                />
-              </IconButton>
+              </Link>
+              <div className="relative">
+                <button
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  className="w-10 h-10 rounded-full bg-green-700 text-white flex items-center justify-center"
+                >
+                  {user?.name?.[0] || 'U'}
+                </button>
+                {isMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                    <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      Profile
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             <>
-              <Button
-                href='/login'
-                sx={{ color: '#007b2d', mr: 1 }}
-              >
+              <Link to="/login" className="text-green-700 hover:text-green-800">
                 Log in
-              </Button>
-              <Button
-                href='/signup'
-                variant="outlined"
-                sx={{ 
-                  color: '#007b2d',
-                  borderColor: '#007b2d',
-                  '&:hover': { backgroundColor: '#def3df' }
-                }}
+              </Link>
+              <Link
+                to="/signup"
+                className="px-4 py-2 border border-green-700 text-green-700 rounded hover:bg-green-50"
               >
                 Create Account
-              </Button>
+              </Link>
             </>
           )}
-        </Box>
+        </div>
 
-        {/* Menu Mobile */}
-        <IconButton
-          sx={{ display: { xs: 'flex', md: 'none' }, color: '#007b2d' }}
-          onClick={handleMobileMenuOpen}
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="md:hidden text-green-700"
         >
-          <MenuIcon />
-        </IconButton>
-
-        {/* Menus déroulants */}
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-        >
-          {isAuthenticated && (
-            <>
-              <MenuItem onClick={handleMenuClose} component={Link} href="/profile">
-                Profile
-              </MenuItem>
-              <MenuItem onClick={handleMenuClose} component={Link} href="/settings">
-                Settings
-              </MenuItem>
-              <MenuItem onClick={handleLogout}>
-                Logout
-              </MenuItem>
-            </>
-          )}
-        </Menu>
-
-        <Menu
-          anchorEl={mobileMenuAnchor}
-          open={Boolean(mobileMenuAnchor)}
-          onClose={handleMenuClose}
-        >
-          {isAuthenticated ? (
-            <>
-              <MenuItem onClick={handleMenuClose} component={Link} href="/create-post">
-                Create Post
-              </MenuItem>
-              <MenuItem onClick={handleMenuClose} component={Link} href="/profile">
-                Profile
-              </MenuItem>
-              <MenuItem onClick={handleLogout}>
-                Logout
-              </MenuItem>
-            </>
-          ) : (
-            <>
-              <MenuItem onClick={handleMenuClose} component={Link} href="/login">
-                Log in
-              </MenuItem>
-              <MenuItem onClick={handleMenuClose} component={Link} href="/signup">
-                Create Account
-              </MenuItem>
-            </>
-          )}
-        </Menu>
-      </Toolbar>
-    </AppBar>
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </nav>
   );
 };
 
 export default Navbar;
-
-// const Navbar = () => {
-//   const [connected, setConnected] = useState(false);
-//   const [anchorEl, setAnchorEl] = useState(null);
-
-//   const handleMenuOpen = (event) => {
-//     setAnchorEl(event.currentTarget);
-//   };
-
-//   const handleMenuClose = () => {
-//     setAnchorEl(null);
-//   };
-
-//   return (
-//     <AppBar position="static" sx={{  backgroundColor: 'white' }} className='w-full'>
-//       <Toolbar  sx={{display: 'flex', justifyContent: 'space-between'}}>
-//         <Link href='/'>
-//           <Box
-//             component='img'
-//             sx={{
-//               maxWidth: '100px',
-//               maxHeight: '40px',
-//               borderRadius: '20%',
-//               margin: '0 20px'
-//             }}
-//             src={Logo}
-//           />
-//         </Link>
-        
-//         <Box sx={{ display: { xs: 'none', md: 'flex' }}}>
-//           <Box sx={{ display: 'flex', border: '.1px solid black', borderRadius: '10px', padding: '0 10px', width: '100%' }}>
-//             <IconButton type="submit" aria-label="search">
-//               <SearchIcon />
-//             </IconButton>
-//             <InputBase
-//               placeholder="Rechercher..."
-//               inputProps={{ 'aria-label': 'search' }}
-              
-//             />
-//           </Box>
-//         </Box>
-//         {/* bouton a mettre sur petit ecran */}
-//         <Hidden mdUp>
-//           <IconButton
-//             size="large"
-//             aria-label="menu"
-//             onClick={handleMenuOpen}
-//             sx={{ color: '#007b2d' }}
-//           >
-//             <MenuIcon />
-//           </IconButton>
-//         </Hidden>
-//         <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
-//           {(!connected) ? (
-//             <div>
-//               <Link href='login' className=" no-underline text-black" sx={{ '&:hover': { backgroundColor: '#def3df' }, color: '#007b2d' }}>
-//                 Log in
-//               </Link>
-//               <Link href='/signup' className="link-navbar  ml-3 p-2 rounded" sx={{ '&:hover': { backgroundColor: '#def3df' }, border: '1px solid #007b2d', color: '#007b2d', marginLeft: '12px' }}>
-//                 Create Account
-//               </Link>
-//             </div>
-//           ) : (
-//             <div>
-//               <Link href='/create-post' className="text-black" sx={{ '&:hover': { backgroundColor: '#def3df' }, border: '1px solid #007b2d', color: '#007b2d', marginRight: '12px' }}>
-//                 Create post
-//               </Link>
-//               <img src={Logo} alt="" className='w-10 rounded' />
-//             </div>
-//           )}
-//         </Box>
-//         <Menu
-//           anchorEl={anchorEl}
-//           open={Boolean(anchorEl)}
-//           onClose={handleMenuClose}
-          
-//         >
-//           {(connected) ? (
-//             <div>
-//               <MenuItem onClick={handleMenuClose} component={Link} href='/login'>Log in</MenuItem>
-//               <MenuItem onClick={handleMenuClose} component={Link} href='/signup'>Create Account</MenuItem>
-//             </div>
-//           ) : (
-//             <div>
-//               <MenuItem onClick={handleMenuClose} component={Link} href='/create-post'>Create post</MenuItem>
-//               <MenuItem onClick={handleMenuClose} component={Link} href='/user-profile'>Profile</MenuItem>
-//               <MenuItem onclick={handleMenuClose} component={Link} href='/login'>SignOut</MenuItem>
-//             </div>
-//           )}
-//         </Menu>
-//       </Toolbar>
-//     </AppBar>
-//   );
-// }
-
-// export default Navbar;
-
-

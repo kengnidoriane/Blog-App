@@ -1,186 +1,151 @@
-
-
-import  { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-// import { useAuth } from '../context/AuthContext';
+import { useAuthStore } from '../store/authStore';
 import AuthService from '../services/AuthService';
-import { validateEmail, validatePassword, validateName } from '../utils/validators';
-import { Stack, Box, TextField, Button, Typography, CircularProgress } from '@mui/material';
+import { signupSchema } from '../lib/validations';
 import Logo from '../assets/logo1.png';
 import signup from '../assets/signUpImage.png';
 import { uploadImage } from '../config/uploadImage';
 
 const SignupPage = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    username: '',
-    email: '',
-    password: '',
+  const { register, handleSubmit, formState: { errors, isSubmitting }, setError } = useForm({
+    resolver: zodResolver(signupSchema),
   });
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  // const { signUp } = useAuth();
-  const navigate = useNavigate();
   
   const [image, setImage] = useState(null);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prevData => ({
-      ...prevData,
-      [name]: value
-    }));
-  };
+  const login = useAuthStore((state) => state.login);
+  const navigate = useNavigate();
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     setImage(file);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
-    
-    // Validation
-    if (!validateName(formData.name)) {
-      setError('Nom invalide');
-      setIsLoading(false);
-      return;
-    }
-    if (!validateEmail(formData.email)) {
-      setError('Email invalide');
-      setIsLoading(false);
-      return;
-    }
-    if (!validatePassword(formData.password)) {
-      setError('Le mot de passe doit contenir au moins 6 caractères');
-      setIsLoading(false);
-      return;
-    }
-    if (formData.password !== formData.confirmPassword) {
-      setError('Les mots de passe ne correspondent pas');
-      setIsLoading(false);
-      return;
-    }
-
+  const onSubmit = async (data) => {
     try {
       let imageUrl = null;
       
-      // Upload d'image optionnel
       if (image) {
         try {
           imageUrl = await uploadImage(image, 'profileImages');
         } catch (uploadError) {
           console.warn('Erreur upload image, inscription sans image:', uploadError);
-          // Continue sans image si l'upload échoue
         }
       }
 
-      await AuthService.signUp({
-        ...formData,
+      const response = await AuthService.signUp({
+        ...data,
         image: imageUrl
       });
+      
+      login({
+        user: response.user,
+        token: response.token
+      });
+      
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Une erreur est survenue lors de l\'inscription');
-    } finally {
-      setIsLoading(false);
+      setError('root', {
+        message: err.response?.data?.message || 'Une erreur est survenue lors de l\'inscription'
+      });
     }
   };
 
   return (
-    <Stack
-      direction={'row'}
-      alignItems={'center'}
-      justifyContent={'center'}
-      height={'100vh'}
-      width={'100vw'}
-    >
-      <Box className='hidden md:flex h-full w-1/2 flex-col gap-4 items-center justify-center'>
-        <img src={signup} alt="Connexion Image" />
-      </Box>
-      <Stack className='h-full w-full md:w-1/2 flex flex-col gap-4 items-center justify-center bg-[#def3df]'>
-        <Box className='flex justify-center align-center' >
-          <img src={Logo} alt="" className='w-2/5 bg-center rounded-lg'/>
-        </Box>
-        <Stack
-          width={'60%'}
-          gap={5}
-          className='h-4/5 w-96'
-        >
-          <Typography variant='h4' textAlign={'center'} className='mb-8 text-center'>Create your account</Typography>
-          <form onSubmit={handleSubmit}>
-            <Stack direction={"column"} gap={4}>
-              {error && <Typography color="error">{error}</Typography>}
-              <TextField 
-                type="file" 
-                inputProps={{ accept: 'image/*' }} 
+    <div className="flex h-screen">
+      <div className="hidden md:flex w-1/2 items-center justify-center">
+        <img src={signup} alt="Inscription Image" className="max-w-md" />
+      </div>
+      <div className="flex w-full md:w-1/2 flex-col items-center justify-center bg-green-50 p-8">
+        <div className="mb-8">
+          <img src={Logo} alt="Logo" className="w-24 rounded-lg" />
+        </div>
+        <div className="w-full max-w-md space-y-6">
+          <h1 className="text-3xl font-bold text-center">Create your account</h1>
+          {errors.root && (
+            <div className="bg-red-100 text-red-700 p-3 rounded">
+              {errors.root.message}
+            </div>
+          )}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+              <input
+                type="file"
+                accept="image/*"
                 onChange={handleImageUpload}
-                helperText="Photo de profil (optionnel)"
+                className="w-full p-2 border border-gray-300 rounded-md"
               />
-              <TextField 
-                name="name"
-                label="Name" 
-                variant="outlined" 
-                value={formData.name}
-                onChange={handleChange}
-                required 
+              <p className="text-sm text-gray-500 mt-1">Photo de profil (optionnel)</p>
+            </div>
+            <div>
+              <input
+                {...register('name')}
+                placeholder="Name"
+                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               />
-              <TextField 
-                name="username"
-                label="Username" 
-                variant="outlined" 
-                value={formData.username}
-                onChange={handleChange}
-                required 
+              {errors.name && (
+                <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+              )}
+            </div>
+            <div>
+              <input
+                {...register('username')}
+                placeholder="Username"
+                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               />
-              <TextField 
-                name="email"
-                label="Email" 
-                variant="outlined" 
-                type='email' 
-                value={formData.email}
-                onChange={handleChange}
-                required 
+              {errors.username && (
+                <p className="text-red-500 text-sm mt-1">{errors.username.message}</p>
+              )}
+            </div>
+            <div>
+              <input
+                {...register('email')}
+                type="email"
+                placeholder="Email"
+                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               />
-              <TextField 
-                name="password"
-                label="Password" 
-                variant="outlined" 
-                type='password'  
-                value={formData.password}
-                onChange={handleChange}
-                required 
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+              )}
+            </div>
+            <div>
+              <input
+                {...register('password')}
+                type="password"
+                placeholder="Password"
+                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               />
-              <TextField 
-                name="confirmPassword"
-                label="Confirm Password" 
-                variant="outlined" 
-                type='password'  
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required 
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+              )}
+            </div>
+            <div>
+              <input
+                {...register('confirmPassword')}
+                type="password"
+                placeholder="Confirm Password"
+                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               />
-              <Button   
-                style={{
-                  backgroundColor: "#007b2d",
-                  padding: "12px 36px",
-                  fontSize: "18px"
-                }} 
-                variant="contained" 
-                type='submit' 
-                className='connexion__button'
-                disabled={isLoading}
-              >
-                {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Sign Up'}
-              </Button>
-            </Stack>
+              {errors.confirmPassword && (
+                <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>
+              )}
+            </div>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-green-700 text-white p-3 rounded-md hover:bg-green-800 disabled:opacity-50"
+            >
+              {isSubmitting ? 'Inscription...' : 'Sign Up'}
+            </button>
           </form>
-        </Stack> 
-        <p>Already have an account? <Link to='/login' className='text-blue-500 underline font-medium'>Log In</Link></p>
-      </Stack>
-    </Stack>
+          <p className="text-center">
+            Already have an account? <Link to='/login' className='text-blue-500 underline'>Log In</Link>
+          </p>
+        </div>
+      </div>
+    </div>
   );
 };
 

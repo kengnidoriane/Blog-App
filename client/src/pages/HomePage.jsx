@@ -1,16 +1,13 @@
-import {  Box ,Typography } from '@mui/material';
 import PostList from '../components/PostList';
 
 const HomePage = () => {
 
   return (
     
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        Articles récents
-      </Typography>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-4xl font-bold mb-8">Articles récents</h1>
       <PostList />
-    </Box>
+    </div>
   );
 };
 

@@ -1,14 +1,12 @@
 import { Navigate } from 'react-router-dom';
-import  {useAuth } from '../../context/AuthContext';
+import { useAuthStore } from '../../store/authStore';
 
 export const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   
-  // Vérifiez si l'utilisateur est connecté
-  if (!isAuthenticated ) {
+  if (!isAuthenticated) {
     return <Navigate to='/login' replace/>;
   }
 
-  // Si l'utilisateur est connecté, retournez l'élément
   return children;
 };
