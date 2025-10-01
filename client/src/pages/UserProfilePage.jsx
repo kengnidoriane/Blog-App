@@ -1,104 +1,55 @@
-import { Card,CardContent, Box,Grid, Typography } from '@mui/material';
 import PostList from '../components/PostList';
-import Navbar from '../components/Navbar';
+import { useAuthStore } from '../store/authStore';
 
 const UserProfilePage = () => {
-  const posts = [
-    { id: 1, title: 'Article 1', excerpt: 'Résumé de l\'article 1...' },
-    { id: 2, title: 'Article 2', excerpt: 'Résumé de l\'article 2...' },
-  ];
+  const user = useAuthStore((state) => state.user);
 
   return (
-    <Box>
-      <Navbar />
-      <Box sx={{backgroundColor: '#f1f1f1', height: '', padding: '20px 15px'}}>
-        <Typography variant="h4" gutterBottom className='text-bold'>
-          Dashboard
-
-        </Typography>
-        <Grid container spacing={3}>
-              <Grid item xs={12} sm={6} md={4}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h4" component="div">
-                      0
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Total Post reactions
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-              <Grid item xs={12} sm={6} md={4}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h4" component="div">
-                      0
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Total Post commnents
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-              <Grid item xs={12} sm={6} md={4}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h4" component="div">
-                      500
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Total Post view
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-        </Grid>
-        
-      </Box>
-      <Box>
-      <Grid container spacing={3}>
-          <Grid item xs={12} md={4} >
-            <Box className='m-6 p-2 rounded-md flex flex-row justify-between bg-[#f1f1f1]'>
-              <span>Box</span>
-              <span>0</span>
-            </Box>
-            <Box className='m-6 p-2 rounded-md flex flex-row justify-between bg-[#f1f1f1]'>
+    <div className="container mx-auto px-4 py-8">
+      <div className="bg-gray-100 p-6 rounded-lg mb-8">
+        <h1 className="text-4xl font-bold mb-6">Dashboard</h1>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h2 className="text-3xl font-bold">0</h2>
+            <p className="text-gray-600">Total Post reactions</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h2 className="text-3xl font-bold">0</h2>
+            <p className="text-gray-600">Total Post comments</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h2 className="text-3xl font-bold">500</h2>
+            <p className="text-gray-600">Total Post views</p>
+          </div>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="lg:col-span-1">
+          <div className="space-y-4">
+            <div className="bg-gray-100 p-4 rounded-md flex justify-between">
               <span>Posts</span>
               <span>0</span>
-            </Box>
-            <Box className='m-6 p-2 rounded-md flex flex-row justify-between bg-[#f1f1f1]'>
+            </div>
+            <div className="bg-gray-100 p-4 rounded-md flex justify-between">
               <span>Followers</span>
               <span>0</span>
-            </Box>
-            <Box className='m-6 p-2 rounded-md flex flex-row justify-between bg-[#f1f1f1]'>
-              <span>Following Users</span>
+            </div>
+            <div className="bg-gray-100 p-4 rounded-md flex justify-between">
+              <span>Following</span>
               <span>0</span>
-            </Box>
-            
-          </Grid>
-          <Grid item xs={12} md={8}  >
-            <Box className='p-6 border-b-2'>
-              <Typography variant="h5" gutterBottom className='text-bold'>
-                Posts
-              </Typography>
-            </Box >
-            <Box className='mt-6'>
-              <PostList posts={posts}/>
-            </Box>
-           
-          </Grid>
-        </Grid>
-      </Box>
-      
-          
-
-
-
-
-
-      {/* <PostList posts={posts} /> */}
-    </Box>
+            </div>
+          </div>
+        </div>
+        
+        <div className="lg:col-span-3">
+          <div className="border-b-2 pb-4 mb-6">
+            <h2 className="text-2xl font-bold">Posts</h2>
+          </div>
+          <PostList />
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -26,7 +26,7 @@ const handleValidationErrors = (req, res, next) => {
 
 // Fonction pour générer un token JWT
 const generateToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
+  return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '24h' });
 };
 
 // Inscription d'un utilisateur
@@ -80,12 +80,10 @@ exports.registerUser = [
 
       res.status(201).json({
         success: true,
-        user: {
-          userId: savedUser._id,
-          username: savedUser.username,
-          email: savedUser.email,
-          name: savedUser.name
-        },
+        userId: savedUser._id,
+        username: savedUser.username,
+        email: savedUser.email,
+        name: savedUser.name,
         token,
       });
     } catch (error) {
@@ -128,12 +126,10 @@ exports.loginUser = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      user: {
-        userId: existingUser._id,
-        username: existingUser.username,
-        email: existingUser.email,
-        name: existingUser.name
-      },
+      userId: existingUser._id,
+      username: existingUser.username,
+      email: existingUser.email,
+      name: existingUser.name,
       token,
     });
   } catch (error) {

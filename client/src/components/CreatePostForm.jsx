@@ -118,17 +118,26 @@ function CreatePostForm() {
   };
 
   const onSubmit = async (data) => {
+    console.log('User dans CreatePostForm:', user);
+    
+    if (!user?.userId) {
+      alert('Vous devez être connecté pour publier un article');
+      navigate('/login');
+      return;
+    }
+
     try {
       await createArticle({
         title: data.title,
         content: data.content,
-        author: user?.userId,
+        author: user.userId,
         tags: []
       });
       navigate('/');
     } catch (error) {
       console.error('Erreur lors de la création de l\'article:', error);
-      alert('Erreur lors de la publication de l\'article');
+      console.error('Détails de l\'erreur:', error.response?.data);
+      alert('Erreur lors de la publication de l\'article. Vérifiez votre connexion.');
     }
   };
 

@@ -4,11 +4,16 @@ import Logo from '../assets/logo1.png';
 import { useAuthStore } from '../store/authStore';
 
 const Navbar = () => {
-  const { isAuthenticated, user, logout } = useAuthStore();
+  const { isAuthenticated, user, logout, clearStorage } = useAuthStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
+  };
+
+  const handleClearStorage = () => {
+    clearStorage();
+    window.location.reload();
   };
 
   return (

@@ -18,10 +18,8 @@ const LoginPage = () => {
   const onSubmit = async (data) => {
     try {
       const response = await authService.login(data);
-      login({
-        user: response.data.user,
-        token: response.data.token
-      });
+      console.log('Response login:', response.data);
+      login(response.data);
       navigate('/');
     } catch (err) {
       setError('root', {
