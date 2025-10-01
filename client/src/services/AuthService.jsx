@@ -11,8 +11,18 @@ const signUp = async (userData) => {
   }
 };
 
+const login = async (credentials) => {
+  try {
+    const response = await axios.post(`${API_URL}/auth/login`, credentials);
+    return response.data;
+  } catch (error) {
+    throw error.response.data;
+  }
+};
+
 const AuthService = {
   signUp,
+  login,
 };
 
 export default AuthService;

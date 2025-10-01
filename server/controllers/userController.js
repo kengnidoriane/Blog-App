@@ -62,7 +62,7 @@ exports.registerUser = [
         username,
         email,
         password: hashedPassword,
-        image,
+        image: image || null, // Image optionnelle
       });
 
       // Sauvegarder l'utilisateur dans la base de données
@@ -79,9 +79,13 @@ exports.registerUser = [
       })
 
       res.status(201).json({
-        userId: savedUser._id,
-        username: savedUser.username,
-        email: savedUser.email,
+        success: true,
+        user: {
+          userId: savedUser._id,
+          username: savedUser.username,
+          email: savedUser.email,
+          name: savedUser.name
+        },
         token,
       });
     } catch (error) {
@@ -123,8 +127,13 @@ exports.loginUser = async (req, res) => {
     });
 
     res.status(200).json({
-      userId: existingUser._id,
-      email: existingUser.email,
+      success: true,
+      user: {
+        userId: existingUser._id,
+        username: existingUser.username,
+        email: existingUser.email,
+        name: existingUser.name
+      },
       token,
     });
   } catch (error) {

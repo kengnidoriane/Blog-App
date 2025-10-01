@@ -66,12 +66,22 @@ const SignupPage = () => {
 
     try {
       let imageUrl = null;
+      
+      // Upload d'image optionnel
       if (image) {
-        imageUrl = await uploadImage(image, 'profileImages');
+        try {
+          imageUrl = await uploadImage(image, 'profileImages');
+        } catch (uploadError) {
+          console.warn('Erreur upload image, inscription sans image:', uploadError);
+          // Continue sans image si l'upload échoue
+        }
       }
 
-      await AuthService.signUp({formData, imageUrl});
-      navigate('/dashboard');
+      await AuthService.signUp({
+        ...formData,
+        image: imageUrl
+      });
+      navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Une erreur est survenue lors de l\'inscription');
     } finally {
@@ -107,6 +117,7 @@ const SignupPage = () => {
                 type="file" 
                 inputProps={{ accept: 'image/*' }} 
                 onChange={handleImageUpload}
+                helperText="Photo de profil (optionnel)"
               />
               <TextField 
                 name="name"

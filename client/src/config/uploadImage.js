@@ -3,6 +3,10 @@ import { storage } from './firebaseConfig';
 
 export const uploadImage = async (file, folder) => {
   try {
+    if (!storage) {
+      throw new Error('Firebase Storage non configuré');
+    }
+    
     const storageRef = ref(storage, `${folder}/${Date.now()}_${file.name}`);
     const snapshot = await uploadBytes(storageRef, file);
     const downloadURL = await getDownloadURL(snapshot.ref);

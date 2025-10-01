@@ -7,6 +7,7 @@ import CreatePostPage from './pages/CreatePostPage';
 import SinglePostPage from './pages/SinglePostPage';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/common/ProtectedRoute'
+import Navbar from './components/Navbar';
 import './App.css'
 
 const App = () => {
@@ -14,6 +15,7 @@ const App = () => {
     
     <Router>
         <AuthProvider>
+          <Navbar />
           <Routes>
             <Route path="/" element={ <HomePage />} />
             <Route path="/create-post" element={<CreatePostPage />}  />

@@ -11,7 +11,7 @@ const authReducer = (state, action) => {
       localStorage.setItem('user', JSON.stringify(action.payload.user))
       return { 
         ...state,
-        user: action.payload,
+        user: action.payload.user,
         token: action.payload.token,
         isAuthenticated: true
       };

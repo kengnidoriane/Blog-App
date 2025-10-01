@@ -36,8 +36,11 @@ const LoginPage = () => {
       dispatch({
         type: 'LOGIN',
         payload: {
-          user: response.user,
-          token: response.token
+          user: {
+            userId: response.data.userId,
+            email: response.data.email
+          },
+          token: response.data.token
         }
       });
       navigate('/');
@@ -78,15 +81,19 @@ const LoginPage = () => {
         <Stack direction={"column"} gap={4}>
           <TextField 
                      id="outlined-basic" 
+                     name="email"
                      label="Email" 
                      variant="outlined" 
                      type='email' 
+                     value={formData.email}
                      onChange={handleChange}
                      required />
           <TextField id="outlined-basic" 
+                     name="password"
                      label="Password" 
                      variant="outlined" 
-                     type='password'  
+                     type='password'
+                     value={formData.password}
                      onChange={handleChange}
                      required />
           <Button   style={{

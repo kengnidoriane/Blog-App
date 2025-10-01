@@ -12,7 +12,7 @@ const PostList = () => {
     const getArticles = async () => {
       try {
         const data = await fetchArticles();
-        setArticles(data);
+        setArticles(Array.isArray(data) ? data : []);
         console.log(data);
         
       } catch (err) {
@@ -35,7 +35,7 @@ const PostList = () => {
 
   return (
     <Grid container spacing={4} className='p-4' >
-      {articles.map((post) => (
+      {articles && articles.length > 0 ? articles.map((post) => (
         <Grid item key={post._id} xs={12} sm={6} md={4} className='m-2'>
             <Card>
               <CardContent className=' bg-slate-500'>
@@ -62,7 +62,11 @@ const PostList = () => {
               </CardActions>
             </Card>
          </Grid>
-      ))}
+      )) : (
+        <Grid item xs={12}>
+          <Typography>Aucun article disponible</Typography>
+        </Grid>
+      )}
     </Grid>
   );
 };
