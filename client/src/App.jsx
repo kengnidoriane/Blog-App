@@ -22,7 +22,7 @@ const AppContent = () => {
         <Route path="/post/:postId" element={<SinglePostPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupForm />} />
-        <Route path="/dashboard" element={<ProtectedRoute element={<UserProfilePage />} />} />
+        <Route path="/dashboard" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
       </Routes>
     </>
   );

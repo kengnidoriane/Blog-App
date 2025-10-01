@@ -1,11 +1,12 @@
 const express = require('express');
-const mongoose = require('mongoose')
-const CommentRouter = express.Router();
-const commentController = require('../controllers/commentController')
+const CommentRouter = express.Router({ mergeParams: true });
+const { protect } = require('../middlewares/auth');
+const commentController = require('../controllers/commentController');
 
-
-CommentRouter.post('/', commentController.createComment);
+// Routes pour les commentaires d'un article spécifique
+CommentRouter.post('/', protect, commentController.createComment);
 CommentRouter.get('/', commentController.getCommentsByArticle);
-CommentRouter.delete('/', commentController.deleteComment);
+CommentRouter.put('/:id', protect, commentController.updateComment);
+CommentRouter.delete('/:id', protect, commentController.deleteComment);
 
 module.exports = CommentRouter;

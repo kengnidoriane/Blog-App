@@ -4,8 +4,9 @@ const { protect } = require('../middlewares/auth')
 
 const articleController = require('../controllers/articleController');
 
-articleRouter.post('/', protect , articleController.createArticle);
+articleRouter.post('/', protect, articleController.createArticle);
 articleRouter.get('/', articleController.getAllArticles);
+articleRouter.get('/categories', articleController.getCategories);
 articleRouter.get('/:id', articleController.getArticleById);
 articleRouter.put('/:id', protect, articleController.updateArticle);
 articleRouter.delete('/:id', protect, articleController.deleteArticle);

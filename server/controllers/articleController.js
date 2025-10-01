@@ -55,15 +55,53 @@ exports.deleteArticle = async (req, res) => {
   }
 }
 
-// recuperer tous les articles
+// Récupérer tous les articles avec recherche et filtrage
 exports.getAllArticles = async (req, res) => {
   try {
-    const allArticles = await Article.find().populate('author');
-    res.status(200).json(allArticles);
+    const { search, category, page = 1, limit = 10 } = req.query;
+    const query = {};
+    
+    // Recherche par mots-clés
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { content: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    // Filtrage par catégorie
+    if (category) {
+      query.category = category;
+    }
+    
+    const articles = await Article.find(query)
+      .populate('author', 'name username')
+      .sort({ createDate: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit);
+      
+    const total = await Article.countDocuments(query);
+    
+    res.status(200).json({
+      articles,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+      total
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message})
+    res.status(500).json({ message: error.message });
   }
-}
+};
+
+// Récupérer les catégories disponibles
+exports.getCategories = async (req, res) => {
+  try {
+    const categories = await Article.distinct('category');
+    res.status(200).json(categories.filter(cat => cat));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 // recuperer un article par ID
 exports.getArticleById = async (req, res) => {

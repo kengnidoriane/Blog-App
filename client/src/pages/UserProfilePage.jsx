@@ -3,6 +3,16 @@ import { useAuthStore } from '../store/authStore';
 
 const UserProfilePage = () => {
   const user = useAuthStore((state) => state.user);
+  
+  console.log('UserProfilePage - user:', user);
+  
+  if (!user) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-lg text-gray-600">Chargement du profil...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

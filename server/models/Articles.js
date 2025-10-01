@@ -18,6 +18,11 @@ const ArticleSchema = new Schema({
     ref : 'User',
     required: true,
   },
+  category: {
+    type: String,
+    enum: ['technologie', 'lifestyle', 'business', 'sante', 'education', 'divertissement'],
+    default: 'technologie'
+  },
   image: {
     type: String,
   },
