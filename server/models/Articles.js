@@ -26,6 +26,18 @@ const ArticleSchema = new Schema({
   image: {
     type: String,
   },
+  likes: [{
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  likesCount: {
+    type: Number,
+    default: 0
+  },
+  commentsCount: {
+    type: Number,
+    default: 0
+  },
   createDate: {
     type: Date,
     default: Date.now,

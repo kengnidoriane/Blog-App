@@ -116,4 +116,55 @@ exports.getArticleById = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-}
+};
+
+// Liker/Unliker un article
+exports.toggleLike = async (req, res) => {
+  try {
+    const article = await Article.findById(req.params.id);
+    if (!article) {
+      return res.status(404).json({ message: 'Article non trouvé' });
+    }
+
+    const userId = req.user._id;
+    const hasLiked = article.likes.includes(userId);
+
+    if (hasLiked) {
+      // Retirer le like
+      article.likes = article.likes.filter(id => id.toString() !== userId.toString());
+      article.likesCount = Math.max(0, article.likesCount - 1);
+    } else {
+      // Ajouter le like
+      article.likes.push(userId);
+      article.likesCount += 1;
+    }
+
+    await article.save();
+    res.status(200).json({ 
+      liked: !hasLiked, 
+      likesCount: article.likesCount 
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Obtenir le statut de like d'un utilisateur
+exports.getLikeStatus = async (req, res) => {
+  try {
+    const article = await Article.findById(req.params.id);
+    if (!article) {
+      return res.status(404).json({ message: 'Article non trouvé' });
+    }
+
+    const userId = req.user._id;
+    const hasLiked = article.likes.includes(userId);
+
+    res.status(200).json({ 
+      liked: hasLiked, 
+      likesCount: article.likesCount 
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
