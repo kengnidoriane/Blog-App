@@ -1,6 +1,9 @@
 const mongoose = require('mongoose')
 const express = require('express');
 const asyncHandler = require('express-async-handler');
+const NotificationService = require('../services/notificationService');
+const { cache } = require('../config/cache');
+const logger = require('../config/logger');
 
 // importe le modele Article
 const Article = require('../models/Articles')
@@ -19,10 +22,26 @@ exports.createArticle = asyncHandler(async (req, res) => {
     });
     
     await newArticle.populate('author', 'name username');
+    
+    // Invalider le cache des articles
+    await cache.del('articles:all:all:1:10');
+    
+    // Notification pour les followers (optionnel)
+    try {
+      const io = req.app.get('io');
+      io.emit('newArticle', {
+        title: newArticle.title,
+        author: newArticle.author.name,
+        id: newArticle._id
+      });
+    } catch (error) {
+      logger.error('Erreur notification article:', error);
+    }
+    
     res.status(201).json(newArticle);
     
   } catch (error) {
-    console.error('Erreur lors de la creation de l\'article:', error);
+    logger.error('Erreur lors de la creation de l\'article:', error);
     res.status(500).json({message: error.message});
   }
 });
@@ -43,8 +62,13 @@ exports.updateArticle = async (req, res) => {
     const updatedArticle = await Article.findByIdAndUpdate(req.params.id, req.body, { new: true })
       .populate('author', 'name username');
     
+    // Invalider le cache
+    await cache.del(`article:${req.params.id}`);
+    await cache.del('articles:all:all:1:10');
+    
     res.status(200).json(updatedArticle);
   } catch (error) {
+    logger.error('Erreur updateArticle:', error);
     res.status(500).json({ message: error.message });
   }
 }
@@ -73,6 +97,14 @@ exports.deleteArticle = async (req, res) => {
 exports.getAllArticles = async (req, res) => {
   try {
     const { search, category, page = 1, limit = 10 } = req.query;
+    const cacheKey = `articles:${search || 'all'}:${category || 'all'}:${page}:${limit}`;
+    
+    // Vérifier le cache
+    const cachedData = await cache.get(cacheKey);
+    if (cachedData) {
+      return res.status(200).json(cachedData);
+    }
+    
     const query = {};
     
     // Recherche par mots-clés
@@ -90,19 +122,27 @@ exports.getAllArticles = async (req, res) => {
     
     const articles = await Article.find(query)
       .populate('author', 'name username')
+      .select('-content') // Exclure le contenu complet pour la liste
       .sort({ createDate: -1 })
       .limit(limit * 1)
-      .skip((page - 1) * limit);
+      .skip((page - 1) * limit)
+      .lean(); // Optimisation MongoDB
       
     const total = await Article.countDocuments(query);
     
-    res.status(200).json({
+    const result = {
       articles,
       totalPages: Math.ceil(total / limit),
-      currentPage: page,
+      currentPage: parseInt(page),
       total
-    });
+    };
+    
+    // Mettre en cache pour 5 minutes
+    await cache.set(cacheKey, result, 300);
+    
+    res.status(200).json(result);
   } catch (error) {
+    logger.error('Erreur getAllArticles:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -120,14 +160,29 @@ exports.getCategories = async (req, res) => {
 // recuperer un article par ID
 exports.getArticleById = async (req, res) => {
   try {
-    const articleById = await Article.findById(req.params.id).populate('author');
+    const cacheKey = `article:${req.params.id}`;
+    
+    // Vérifier le cache
+    const cachedArticle = await cache.get(cacheKey);
+    if (cachedArticle) {
+      return res.json(cachedArticle);
+    }
+    
+    const articleById = await Article.findById(req.params.id)
+      .populate('author', 'name username')
+      .lean();
+      
     if (!articleById) {
       return res.status(404).json({ message: 'Article non trouve'})
-    } else {
-      return res.json(articleById)
     }
+    
+    // Mettre en cache pour 10 minutes
+    await cache.set(cacheKey, articleById, 600);
+    
+    return res.json(articleById);
 
   } catch (error) {
+    logger.error('Erreur getArticleById:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -157,6 +212,23 @@ exports.toggleLike = async (req, res) => {
       // Ajouter le like
       article.likes.push(userId);
       article.likesCount += 1;
+      
+      // Créer notification
+      try {
+        const notification = await NotificationService.createNotification({
+          recipient: article.author,
+          sender: userId,
+          type: 'like',
+          message: `a aimé votre article "${article.title}"`,
+          articleId: article._id
+        });
+        
+        // Envoyer notification en temps réel
+        const io = req.app.get('io');
+        io.to(article.author.toString()).emit('newNotification', notification);
+      } catch (notifError) {
+        console.error('Erreur notification:', notifError);
+      }
     }
 
     await article.save();

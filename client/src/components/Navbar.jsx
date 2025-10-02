@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { User, Settings, LogOut, PenTool, Menu, X, Search } from 'lucide-react';
+import NotificationDropdown from './NotificationDropdown';
 
 const Navbar = () => {
   const { isAuthenticated, user, logout } = useAuthStore();
@@ -60,6 +61,8 @@ const Navbar = () => {
                   <PenTool className="w-4 h-4 mr-2" />
                   Écrire
                 </Link>
+                
+                <NotificationDropdown />
                 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

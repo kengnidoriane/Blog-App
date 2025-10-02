@@ -8,11 +8,15 @@ import SinglePostPage from './pages/SinglePostPage';
 import EditPostPage from './pages/EditPostPage';
 import { ProtectedRoute } from './components/common/ProtectedRoute'
 import Navbar from './components/Navbar';
+import { useSocket } from './hooks/useSocket';
 import './App.css'
 
 const AppContent = () => {
   const location = useLocation();
   const hideNavbar = ['/login', '/signup'].includes(location.pathname);
+  
+  // Initialiser WebSocket
+  useSocket();
 
   return (
     <>
