@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useNavigate } from 'react-router-dom';
 import apiArticle from '../services/apiArticle';
+import AuthNotification from './AuthNotification';
 
 const LikeButton = ({ articleId, initialLikes = 0, className = "" }) => {
   const [liked, setLiked] = useState(false);
@@ -50,30 +51,68 @@ const LikeButton = ({ articleId, initialLikes = 0, className = "" }) => {
     }
   };
 
-  return (
-    <button 
-      onClick={handleLike}
-      disabled={loading}
-      className={`flex items-center gap-1 transition-colors ${
-        liked 
-          ? 'text-red-500 hover:text-red-600' 
-          : 'text-gray-500 hover:text-red-500'
-      } ${className}`}
-    >
-      <svg 
-        className={`w-4 h-4 ${liked ? 'fill-current' : 'fill-none'}`} 
-        stroke="currentColor" 
-        viewBox="0 0 24 24"
+  const [showAuthNotification, setShowAuthNotification] = useState(false);
+
+  const handleUnauthenticatedClick = () => {
+    setShowAuthNotification(true);
+  };
+
+  if (!user) {
+    return (
+      <button 
+        onClick={handleUnauthenticatedClick}
+        className={`flex items-center gap-1 text-gray-500 hover:text-red-500 transition-colors ${className}`}
+        title="Connectez-vous pour liker"
       >
-        <path 
-          strokeLinecap="round" 
-          strokeLinejoin="round" 
-          strokeWidth={2} 
-          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" 
-        />
-      </svg>
-      <span className="text-xs">{likesCount}</span>
-    </button>
+        <svg 
+          className="w-4 h-4 fill-none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path 
+            strokeLinecap="round" 
+            strokeLinejoin="round" 
+            strokeWidth={2} 
+            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" 
+          />
+        </svg>
+        <span className="text-xs">{likesCount}</span>
+      </button>
+    );
+  }
+
+  return (
+    <>
+      <button 
+        onClick={handleLike}
+        disabled={loading}
+        className={`flex items-center gap-1 transition-colors ${
+          liked 
+            ? 'text-red-500 hover:text-red-600' 
+            : 'text-gray-500 hover:text-red-500'
+        } ${className}`}
+      >
+        <svg 
+          className={`w-4 h-4 ${liked ? 'fill-current' : 'fill-none'}`} 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path 
+            strokeLinecap="round" 
+            strokeLinejoin="round" 
+            strokeWidth={2} 
+            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" 
+          />
+        </svg>
+        <span className="text-xs">{likesCount}</span>
+      </button>
+      
+      <AuthNotification 
+        show={showAuthNotification}
+        onClose={() => setShowAuthNotification(false)}
+        action="liker cet article"
+      />
+    </>
   );
 };
 

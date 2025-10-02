@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuthStore } from '../store/authStore';
 import PostList from '../components/PostList';
 import { TrendingUp, Clock, Users, BookOpen } from 'lucide-react';
 
 const HomePage = () => {
   const [activeTab, setActiveTab] = useState('recent');
+  const { isAuthenticated } = useAuthStore();
 
   const tabs = [
     { id: 'recent', label: 'Récents', icon: Clock },
@@ -26,10 +28,10 @@ const HomePage = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link 
-                to="/create-post"
+                to={isAuthenticated ? "/create-post" : "/login"}
                 className="bg-white text-green-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors text-center"
               >
-                Commencer à écrire
+                {isAuthenticated ? "Commencer à écrire" : "Se connecter pour écrire"}
               </Link>
               <button 
                 onClick={() => document.getElementById('articles').scrollIntoView({ behavior: 'smooth' })}

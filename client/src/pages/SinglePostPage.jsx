@@ -59,7 +59,7 @@ const SinglePostPage = () => {
     </div>
   );
 
-  const isAuthor = user?.userId === article.author?._id;
+  const isAuthor = user?.userId === article.author?._id || user?.userId === article.author;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">

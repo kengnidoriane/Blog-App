@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useNavigate } from 'react-router-dom';
 import apiArticle from '../services/apiArticle';
+import AuthPrompt from './AuthPrompt';
 
 const CommentItem = ({ comment, onReply, onLike, user, level = 0 }) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
@@ -175,25 +176,31 @@ const CommentSection = ({ articleId }) => {
       </div>
       
       <div className="border-t border-gray-200 pt-6">
-        <h4 className="text-lg font-semibold text-gray-900 mb-4">Ajouter un commentaire</h4>
-        <div className="space-y-4">
-          <textarea
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Partagez votre avis..."
-            rows={4}
-            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
-          />
-          <div className="flex justify-end">
-            <button
-              onClick={() => handleAddComment()}
-              disabled={loading || !newComment.trim()}
-              className="bg-green-700 hover:bg-green-800 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium transition-colors"
-            >
-              {loading ? 'Envoi...' : 'Publier le commentaire'}
-            </button>
-          </div>
-        </div>
+        {user ? (
+          <>
+            <h4 className="text-lg font-semibold text-gray-900 mb-4">Ajouter un commentaire</h4>
+            <div className="space-y-4">
+              <textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Partagez votre avis..."
+                rows={4}
+                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+              />
+              <div className="flex justify-end">
+                <button
+                  onClick={() => handleAddComment()}
+                  disabled={loading || !newComment.trim()}
+                  className="bg-green-700 hover:bg-green-800 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                >
+                  {loading ? 'Envoi...' : 'Publier le commentaire'}
+                </button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <AuthPrompt action="commenter cet article" />
+        )}
       </div>
     </div>
   );

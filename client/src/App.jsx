@@ -5,6 +5,7 @@ import SignupForm from './pages/SingUpPage';
 import UserProfilePage from './pages/UserProfilePage';
 import CreatePostPage from './pages/CreatePostPage';
 import SinglePostPage from './pages/SinglePostPage';
+import EditPostPage from './pages/EditPostPage';
 import { ProtectedRoute } from './components/common/ProtectedRoute'
 import Navbar from './components/Navbar';
 import './App.css'
@@ -20,6 +21,7 @@ const AppContent = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/create-post" element={<CreatePostPage />} />
         <Route path="/post/:postId" element={<SinglePostPage />} />
+        <Route path="/edit-post/:postId" element={<EditPostPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupForm />} />
         <Route path="/dashboard" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />

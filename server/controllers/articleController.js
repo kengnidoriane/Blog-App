@@ -29,17 +29,22 @@ exports.createArticle = asyncHandler(async (req, res) => {
 
 // mettre a jour un article
 exports.updateArticle = async (req, res) => {
-  const id = req.params.id;
-
   try {
-    const updateArticle = await Article.findByIdAndUpdate(id, req.body, { new: true });
-    if (!updateArticle) {
-      return res.status(404).json({ message: 'Article non trouve!'});
-    } else{
-      return res.status(200).json(updateArticle);
+    const article = await Article.findById(req.params.id);
+    if (!article) {
+      return res.status(404).json({ message: 'Article non trouvé' });
     }
-  }
-   catch (error) {
+    
+    // Vérifier que l'utilisateur est l'auteur
+    if (article.author.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Non autorisé à modifier cet article' });
+    }
+    
+    const updatedArticle = await Article.findByIdAndUpdate(req.params.id, req.body, { new: true })
+      .populate('author', 'name username');
+    
+    res.status(200).json(updatedArticle);
+  } catch (error) {
     res.status(500).json({ message: error.message });
   }
 }
@@ -47,15 +52,20 @@ exports.updateArticle = async (req, res) => {
 // Supprimer un article
 exports.deleteArticle = async (req, res) => {
   try {
-    const articleToDelete = await Article.findByIdAndDelete(req.params.id);
-    if (!articleToDelete) {
-      return res.status(404).json({message: 'Article non trouve'})
-    } else{
-      res.status(200).json({ message: 'Article supprime'})
+    const article = await Article.findById(req.params.id);
+    if (!article) {
+      return res.status(404).json({ message: 'Article non trouvé' });
     }
-
+    
+    // Vérifier que l'utilisateur est l'auteur
+    if (article.author.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Non autorisé à supprimer cet article' });
+    }
+    
+    await Article.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: 'Article supprimé avec succès' });
   } catch (error) {
-    res.status(500).json({message: error.message})
+    res.status(500).json({ message: error.message });
   }
 }
 
