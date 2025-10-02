@@ -7,20 +7,34 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss');
+const compression = require('compression');
+const fs = require('fs');
 const database = require('./db/database');
 const initializeSocket = require('./config/socket');
+const corsOptions = require('./config/cors');
+const logger = require('./config/logger');
+const { initRedis } = require('./config/cache');
 // importation des routes
 const ArticleRouter = require('./routes/articlesRoutes');
 const CommentRouter = require('./routes/commentRoutes');
 const UserRouter = require('./routes/userRoutes');
 const NotificationRouter = require('./routes/notificationRoutes');
+const HealthRouter = require('./routes/healthRoutes');
 
 
 const app = express();
 const server = http.createServer(app);
 
+// Créer le dossier logs s'il n'existe pas
+if (!fs.existsSync('logs')) {
+  fs.mkdirSync('logs');
+}
+
 // appel fonction pour connection a la base de donne
 database;
+
+// Initialisation Redis
+initRedis();
 
 // Initialisation WebSocket
 const io = initializeSocket(server);
@@ -39,12 +53,19 @@ const limiter = rateLimit({
 });
 
 // middleware globaux
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true
+app.use(compression());
+app.use(cors(corsOptions));
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
 }));
-app.use(helmet());
-app.use(morgan('tiny'));
+app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 app.use(limiter);
 app.use(mongoSanitize());
 app.use(express.json({ limit: '10mb' }));
@@ -67,6 +88,7 @@ app.use('/api/articles', ArticleRouter);
 app.use('/api/articles/:articleId/comments', CommentRouter);
 app.use('/api/user', UserRouter);
 app.use('/api/notifications', NotificationRouter);
+app.use('/api', HealthRouter);
 
 // Route par défaut pour vérifier le bon fonctionnement de l'API
 app.get('/api', (req, res) => {
@@ -80,7 +102,8 @@ app.use('*', (req, res) => {
 
 // Middleware de gestion d'erreurs globale
 app.use((error, req, res, next) => {
-  console.error(error.stack);
+  logger.error(error.message, { stack: error.stack, url: req.url, method: req.method });
+  
   res.status(error.status || 500).json({
     message: error.message || 'Erreur interne du serveur',
     ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
@@ -89,8 +112,10 @@ app.use((error, req, res, next) => {
 
 // demarrage du serveur
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`App is running at port ${PORT}...`)
-)
+server.listen(PORT, () => {
+  logger.info(`Serveur démarré sur le port ${PORT}`);
+  console.log(`App is running at port ${PORT}...`);
+})
 
 
 
