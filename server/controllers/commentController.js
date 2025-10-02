@@ -1,4 +1,5 @@
 const Comment = require('../models/Comments');
+const Article = require('../models/Articles');
 const { protect } = require('../middlewares/auth');
 
 // Créer un commentaire ou une réponse

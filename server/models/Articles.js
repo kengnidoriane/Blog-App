@@ -23,6 +23,10 @@ const ArticleSchema = new Schema({
     enum: ['technologie', 'lifestyle', 'business', 'sante', 'education', 'divertissement'],
     default: 'technologie'
   },
+  tags: [{
+    type: String,
+    trim: true
+  }],
   image: {
     type: String,
   },

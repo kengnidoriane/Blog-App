@@ -8,18 +8,22 @@ const Article = require('../models/Articles')
 // cree un nouvel article
 exports.createArticle = asyncHandler(async (req, res) => {
   try {
-    console.log('requete de creation bien recu');
-    console.log(req.body);
+    const { title, content, category, tags } = req.body;
     
-    const newArticle = await Article.create(req.body);
-    res.status(201).json({message: 'Article cree avec succees', newArticle});
+    const newArticle = await Article.create({
+      title,
+      content,
+      author: req.user._id,
+      category: category || 'technologie',
+      tags: tags || []
+    });
     
-
+    await newArticle.populate('author', 'name username');
+    res.status(201).json(newArticle);
+    
   } catch (error) {
     console.error('Erreur lors de la creation de l\'article:', error);
-    
     res.status(500).json({message: error.message});
-
   }
 });
 
@@ -127,6 +131,12 @@ exports.toggleLike = async (req, res) => {
     }
 
     const userId = req.user._id;
+    
+    // Empêcher de liker son propre article
+    if (article.author.toString() === userId.toString()) {
+      return res.status(403).json({ message: 'Vous ne pouvez pas liker votre propre article' });
+    }
+    
     const hasLiked = article.likes.includes(userId);
 
     if (hasLiked) {

@@ -6,6 +6,7 @@ import { Bold,Code,Eye,EyeOff, Italic,ListOrdered, List, Image, Link, Heading,Qu
 import { Button } from './/ButtonForm';
 import { createArticle } from '../services/PostService';
 import { useAuthStore } from '../store/authStore';
+import TagInput from './TagInput';
 import './css/CreatePostForm.css'
 
 const toolbarActions = [
@@ -82,26 +83,13 @@ function CreatePostForm() {
   const [showMore, setshowMore] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [tags, setTags] = useState([]);
-  const [tagInput, setTagInput] = useState('');
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   
   const title = watch('title', '');
   const content = watch('content', '');
 
-  const addTag = (e) => {
-    if (e.key === 'Enter' && tagInput.trim()) {
-      e.preventDefault();
-      if (!tags.includes(tagInput.trim()) && tags.length < 5) {
-        setTags([...tags, tagInput.trim()]);
-        setTagInput('');
-      }
-    }
-  };
 
-  const removeTag = (tagToRemove) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
-  };
 
 
   const createMarkdownPreview = () => {
@@ -145,7 +133,6 @@ function CreatePostForm() {
         title: data.title,
         content: data.content,
         category: data.category || 'technologie',
-        author: user.userId,
         tags: tags
       });
       navigate('/');
@@ -204,28 +191,10 @@ function CreatePostForm() {
                   
                   {/* Tags */}
                   <div className="mb-6">
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      {tags.map((tag, index) => (
-                        <span key={index} className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm flex items-center gap-2">
-                          #{tag}
-                          <button 
-                            type="button"
-                            onClick={() => removeTag(tag)}
-                            className="text-green-600 hover:text-green-800"
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                    <input
-                      type="text"
-                      value={tagInput}
-                      onChange={(e) => setTagInput(e.target.value)}
-                      onKeyDown={addTag}
-                      placeholder="Ajouter des tags (Entrée pour valider, max 5)"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Tags
+                    </label>
+                    <TagInput tags={tags} setTags={setTags} />
                   </div>
                    
                   <div className="relative flex justify-between gap-2 p-2 bg-gray-50">

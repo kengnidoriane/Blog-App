@@ -40,7 +40,11 @@ const LikeButton = ({ articleId, initialLikes = 0, className = "" }) => {
       setLiked(response.data.liked);
       setLikesCount(response.data.likesCount);
     } catch (error) {
-      console.error('Erreur lors du like:', error);
+      if (error.response?.status === 403) {
+        alert('Vous ne pouvez pas liker votre propre article');
+      } else {
+        console.error('Erreur lors du like:', error);
+      }
     } finally {
       setLoading(false);
     }

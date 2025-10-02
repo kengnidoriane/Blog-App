@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { fetchArticles } from '../services/PostService';
 import { Link } from 'react-router-dom';
 import LikeButton from './LikeButton';
+import BookmarkButton from './BookmarkButton';
 
 const PostList = () => {
   const [articles, setArticles] = useState([]);
@@ -94,18 +95,17 @@ const PostList = () => {
                       initialLikes={post.likesCount || 0}
                     />
                     
-                    <button className="flex items-center gap-1 hover:text-green-600 transition-colors">
+                    <Link 
+                      to={`/post/${post._id}#comments`}
+                      className="flex items-center gap-1 hover:text-green-600 transition-colors"
+                    >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                       </svg>
                       <span className="text-xs">{post.commentsCount || 0}</span>
-                    </button>
+                    </Link>
                     
-                    <button className="flex items-center gap-1 hover:text-green-600 transition-colors">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                      </svg>
-                    </button>
+                    <BookmarkButton articleId={post._id} />
                   </div>
                 </div>
               </div>

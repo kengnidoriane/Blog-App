@@ -1,5 +1,8 @@
+import { useState, useEffect } from 'react';
 import PostList from '../components/PostList';
 import { useAuthStore } from '../store/authStore';
+import { getUserProfile, getFollowers, getFollowing } from '../services/UserService';
+import { fetchArticles } from '../services/PostService';
 
 const UserProfilePage = () => {
   const user = useAuthStore((state) => state.user);
@@ -19,23 +22,32 @@ const UserProfilePage = () => {
   
   const fetchUserData = async () => {
     try {
-      // Simuler la récupération des articles de l'utilisateur
-      const response = await fetch(`/api/articles?author=${user.userId}`);
-      if (response.ok) {
-        const articles = await response.json();
-        setUserArticles(articles);
-        
-        // Calculer les statistiques
-        const totalLikes = articles.reduce((sum, article) => sum + (article.likesCount || 0), 0);
-        const totalComments = articles.reduce((sum, article) => sum + (article.commentsCount || 0), 0);
-        
-        setStats({
-          totalPosts: articles.length,
-          totalLikes,
-          totalComments,
-          totalViews: articles.length * 50 // Simulation
-        });
-      }
+      // Récupérer tous les articles et filtrer par auteur
+      const allArticles = await fetchArticles();
+      const userArticles = allArticles.articles?.filter(article => 
+        article.author?._id === user.userId || article.author === user.userId
+      ) || [];
+      
+      setUserArticles(userArticles);
+      
+      // Calculer les statistiques
+      const totalLikes = userArticles.reduce((sum, article) => sum + (article.likesCount || 0), 0);
+      const totalComments = userArticles.reduce((sum, article) => sum + (article.commentsCount || 0), 0);
+      
+      // Récupérer les followers/following
+      const [followers, following] = await Promise.all([
+        getFollowers(user.userId).catch(() => []),
+        getFollowing(user.userId).catch(() => [])
+      ]);
+      
+      setStats({
+        totalPosts: userArticles.length,
+        totalLikes,
+        totalComments,
+        totalViews: userArticles.length * 50, // Simulation
+        followers: followers.length || 0,
+        following: following.length || 0
+      });
     } catch (error) {
       console.error('Erreur lors de la récupération des données utilisateur:', error);
     }
@@ -95,15 +107,15 @@ const UserProfilePage = () => {
           <div className="space-y-4">
             <div className="bg-gray-100 p-4 rounded-md flex justify-between">
               <span>Posts</span>
-              <span>0</span>
+              <span>{stats.totalPosts}</span>
             </div>
             <div className="bg-gray-100 p-4 rounded-md flex justify-between">
               <span>Followers</span>
-              <span>0</span>
+              <span>{stats.followers || 0}</span>
             </div>
             <div className="bg-gray-100 p-4 rounded-md flex justify-between">
               <span>Following</span>
-              <span>0</span>
+              <span>{stats.following || 0}</span>
             </div>
           </div>
         </div>

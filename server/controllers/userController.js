@@ -176,7 +176,7 @@ const findUserById = async (id) => {
 exports.followUser = async (req, res) => {
   try {
     const { userId } = req.params; // ID de l'utilisateur à suivre
-    const { currentUserId } = req.body;
+    const currentUserId = req.user._id;
 
     const userToFollow = await findUserById(userId);
     const currentUser = await findUserById(currentUserId);
@@ -207,7 +207,7 @@ exports.followUser = async (req, res) => {
 exports.unFollowUser = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { currentUserId } = req.body;
+    const currentUserId = req.user._id;
 
     const userToUnfollow = await findUserById(userId);
     const currentUser = await findUserById(currentUserId);
