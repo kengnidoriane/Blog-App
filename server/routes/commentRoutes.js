@@ -8,5 +8,6 @@ CommentRouter.post('/', protect, commentController.createComment);
 CommentRouter.get('/', commentController.getCommentsByArticle);
 CommentRouter.put('/:id', protect, commentController.updateComment);
 CommentRouter.delete('/:id', protect, commentController.deleteComment);
+CommentRouter.post('/:id/like', protect, commentController.toggleCommentLike);
 
 module.exports = CommentRouter;

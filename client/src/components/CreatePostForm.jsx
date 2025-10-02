@@ -81,11 +81,27 @@ function CreatePostForm() {
   const { register, handleSubmit, watch, setValue, formState: { isSubmitting } } = useForm();
   const [showMore, setshowMore] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [tags, setTags] = useState([]);
+  const [tagInput, setTagInput] = useState('');
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   
   const title = watch('title', '');
   const content = watch('content', '');
+
+  const addTag = (e) => {
+    if (e.key === 'Enter' && tagInput.trim()) {
+      e.preventDefault();
+      if (!tags.includes(tagInput.trim()) && tags.length < 5) {
+        setTags([...tags, tagInput.trim()]);
+        setTagInput('');
+      }
+    }
+  };
+
+  const removeTag = (tagToRemove) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
+  };
 
 
   const createMarkdownPreview = () => {
@@ -118,8 +134,6 @@ function CreatePostForm() {
   };
 
   const onSubmit = async (data) => {
-    console.log('User dans CreatePostForm:', user);
-    
     if (!user?.userId) {
       alert('Vous devez être connecté pour publier un article');
       navigate('/login');
@@ -130,14 +144,14 @@ function CreatePostForm() {
       await createArticle({
         title: data.title,
         content: data.content,
+        category: data.category || 'technologie',
         author: user.userId,
-        tags: []
+        tags: tags
       });
       navigate('/');
     } catch (error) {
       console.error('Erreur lors de la création de l\'article:', error);
-      console.error('Détails de l\'erreur:', error.response?.data);
-      alert('Erreur lors de la publication de l\'article. Vérifiez votre connexion.');
+      alert('Erreur lors de la publication de l\'article.');
     }
   };
 
@@ -169,9 +183,50 @@ function CreatePostForm() {
                 <div className="space-y-2">
                   <input 
                     {...register('title', { required: 'Le titre est requis' })}
-                    className="w-full text-4xl font-medium text-gray-700 mt-10 mb-10 outline-none" 
+                    className="w-full text-4xl font-medium text-gray-700 mt-10 mb-6 outline-none" 
                     placeholder='Title of the new Post here ...'
                   />
+                  
+                  {/* Catégorie */}
+                  <div className="mb-6">
+                    <select 
+                      {...register('category')}
+                      className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    >
+                      <option value="technologie">Technologie</option>
+                      <option value="lifestyle">Lifestyle</option>
+                      <option value="business">Business</option>
+                      <option value="sante">Santé</option>
+                      <option value="education">Education</option>
+                      <option value="divertissement">Divertissement</option>
+                    </select>
+                  </div>
+                  
+                  {/* Tags */}
+                  <div className="mb-6">
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {tags.map((tag, index) => (
+                        <span key={index} className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                          #{tag}
+                          <button 
+                            type="button"
+                            onClick={() => removeTag(tag)}
+                            className="text-green-600 hover:text-green-800"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                    <input
+                      type="text"
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyDown={addTag}
+                      placeholder="Ajouter des tags (Entrée pour valider, max 5)"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
                    
                   <div className="relative flex justify-between gap-2 p-2 bg-gray-50">
                     <div>
