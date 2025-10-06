@@ -126,7 +126,7 @@ function CreatePostForm() {
 
   const onSubmit = async (data) => {
     if (!user?.userId) {
-      error('Vous devez être connecté pour publier un article');
+      error('You must be logged in to publish an article');
       setTimeout(() => navigate('/login'), 2000);
       return;
     }
@@ -138,11 +138,11 @@ function CreatePostForm() {
         category: data.category || 'technologie',
         tags: tags
       });
-      success('Article publié avec succès !');
+      success('Article published successfully!');
       setTimeout(() => navigate('/'), 1500);
     } catch (err) {
       console.error('Erreur lors de la création de l\'article:', err);
-      error('Erreur lors de la publication de l\'article.');
+      error('Error publishing the article.');
     }
   };
 

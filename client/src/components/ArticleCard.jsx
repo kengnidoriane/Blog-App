@@ -51,7 +51,7 @@ const ArticleCard = ({ article }) => {
 
   const handleLike = async () => {
     if (!isAuthenticated) {
-      warning('Connectez-vous pour liker cet article');
+      warning('Login to like this article');
       return;
     }
     
@@ -65,13 +65,13 @@ const ArticleCard = ({ article }) => {
       setLikesCount(response.data.likesCount);
       
       if (response.data.liked) {
-        success('Article ajouté à vos favoris !');
+        success('Article added to your favorites!');
       }
     } catch (err) {
       if (err.response?.status === 403) {
-        error('Vous ne pouvez pas liker votre propre article');
+        error('You cannot like your own article');
       } else {
-        error('Erreur lors du like');
+        error('Error while liking');
       }
     } finally {
       setIsLoading(false);
