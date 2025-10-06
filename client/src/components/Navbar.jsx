@@ -44,7 +44,7 @@ const Navbar = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
-                placeholder="Rechercher des articles..."
+                placeholder="Search articles..."
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50"
               />
             </div>
@@ -59,7 +59,7 @@ const Navbar = () => {
                   className="inline-flex items-center px-4 py-2 border border-green-600 text-green-600 rounded-full hover:bg-green-50 transition-colors font-medium"
                 >
                   <PenTool className="w-4 h-4 mr-2" />
-                  Écrire
+                  Write
                 </Link>
                 
                 <NotificationDropdown />
@@ -90,13 +90,13 @@ const Navbar = () => {
                     <DropdownMenuItem asChild>
                       <Link to="/settings" className="flex items-center">
                         <Settings className="w-4 h-4 mr-2" />
-                        Paramètres
+                        Settings
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
                       <LogOut className="w-4 h-4 mr-2" />
-                      Déconnexion
+                      Logout
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -107,13 +107,13 @@ const Navbar = () => {
                   to="/login" 
                   className="text-gray-700 hover:text-green-600 font-medium transition-colors"
                 >
-                  Connexion
+                  Login
                 </Link>
                 <Link
                   to="/signup"
                   className="px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors font-medium"
                 >
-                  S'inscrire
+                  Sign up
                 </Link>
               </>
             )}
@@ -137,7 +137,7 @@ const Navbar = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
                   type="text"
-                  placeholder="Rechercher..."
+                  placeholder="Search..."
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
@@ -150,7 +150,7 @@ const Navbar = () => {
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <PenTool className="w-4 h-4 mr-3" />
-                    Écrire un article
+                    Write article
                   </Link>
                   <Link
                     to="/dashboard"
@@ -168,7 +168,7 @@ const Navbar = () => {
                     className="flex items-center w-full px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg"
                   >
                     <LogOut className="w-4 h-4 mr-3" />
-                    Déconnexion
+                    Logout
                   </button>
                 </div>
               ) : (
@@ -178,14 +178,14 @@ const Navbar = () => {
                     className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Connexion
+                    Login
                   </Link>
                   <Link
                     to="/signup"
                     className="block px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-center"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    S'inscrire
+                    Sign up
                   </Link>
                 </div>
               )}
