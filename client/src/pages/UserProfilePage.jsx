@@ -5,7 +5,7 @@ import { getUserProfile, getFollowers, getFollowing } from '../services/UserServ
 import { fetchArticles } from '../services/PostService';
 
 const UserProfilePage = () => {
-  const user = useAuthStore((state) => state.user);
+  const { user, refreshUserProfile } = useAuthStore();
   const [userArticles, setUserArticles] = useState([]);
   const [stats, setStats] = useState({
     totalPosts: 0,
@@ -16,9 +16,10 @@ const UserProfilePage = () => {
   
   useEffect(() => {
     if (user?.userId) {
+      refreshUserProfile(); // Rafraîchir le profil d'abord
       fetchUserData();
     }
-  }, [user]);
+  }, [user?.userId]);
   
   const fetchUserData = async () => {
     try {
@@ -34,19 +35,14 @@ const UserProfilePage = () => {
       const totalLikes = userArticles.reduce((sum, article) => sum + (article.likesCount || 0), 0);
       const totalComments = userArticles.reduce((sum, article) => sum + (article.commentsCount || 0), 0);
       
-      // Récupérer les followers/following
-      const [followers, following] = await Promise.all([
-        getFollowers(user.userId).catch(() => []),
-        getFollowing(user.userId).catch(() => [])
-      ]);
-      
+      // Utiliser les données du modèle User directement
       setStats({
         totalPosts: userArticles.length,
         totalLikes,
         totalComments,
-        totalViews: userArticles.length * 50, // Simulation
-        followers: followers.length || 0,
-        following: following.length || 0
+        totalViews: totalLikes * 3 + totalComments * 2, // Calcul basé sur engagement
+        followers: user.followers?.length || 0,
+        following: user.following?.length || 0
       });
     } catch (error) {
       console.error('Erreur lors de la récupération des données utilisateur:', error);

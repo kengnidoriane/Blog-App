@@ -44,6 +44,25 @@ export const useAuthStore = create(
           isAuthenticated: false,
         });
       },
+
+      refreshUserProfile: async () => {
+        try {
+          const token = localStorage.getItem('token');
+          if (!token) return;
+          
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/user/profile`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          
+          if (response.ok) {
+            const userData = await response.json();
+            set({ user: userData });
+            localStorage.setItem('user', JSON.stringify(userData));
+          }
+        } catch (error) {
+          console.error('Erreur refresh profil:', error);
+        }
+      },
     }),
     {
       name: 'auth-storage',

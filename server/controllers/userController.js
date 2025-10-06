@@ -157,13 +157,22 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user._id)
+      .select('-password')
+      .populate('followers', 'name username')
+      .populate('following', 'name username');
+      
     if (!user) {
       return res.status(404).json({message: 'Utilisateur non trouve'})
     }
-    res.json(user)
+    
+    res.json({
+      ...user.toObject(),
+      followersCount: user.followers.length,
+      followingCount: user.following.length
+    });
   } catch (error) {
-    res.status(500).json({message: error})
+    res.status(500).json({message: error.message})
   }
 }
 
