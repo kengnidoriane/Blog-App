@@ -23,8 +23,15 @@ exports.createArticle = asyncHandler(async (req, res) => {
     
     await newArticle.populate('author', 'name username');
     
-    // Invalider le cache des articles
-    await cache.del('articles:all:all:1:10');
+    // Invalider tout le cache des articles
+    const cacheKeys = [
+      'articles:all:all:1:10',
+      'articles:all:all:1:20',
+      'articles:all:all:2:10'
+    ];
+    for (const key of cacheKeys) {
+      await cache.del(key);
+    }
     
     // Notification pour les followers (optionnel)
     try {
@@ -122,16 +129,37 @@ exports.getAllArticles = async (req, res) => {
     
     const articles = await Article.find(query)
       .populate('author', 'name username')
-      .select('-content') // Exclure le contenu complet pour la liste
       .sort({ createDate: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .lean(); // Optimisation MongoDB
       
+    // Créer un extrait du contenu pour chaque article
+    const articlesWithExcerpt = articles.map(article => {
+      let excerpt = '';
+      if (article.content) {
+        // Nettoyer le HTML/Markdown et créer un extrait
+        excerpt = article.content
+          .replace(/<[^>]*>/g, '') // Supprimer HTML
+          .replace(/[#*_`~\[\]()]/g, '') // Supprimer Markdown
+          .replace(/\s+/g, ' ') // Normaliser espaces
+          .trim()
+          .substring(0, 150);
+        
+        if (excerpt.length === 150) excerpt += '...';
+        if (!excerpt) excerpt = 'Contenu disponible dans l\'article complet';
+      }
+      
+      return {
+        ...article,
+        content: excerpt
+      };
+    });
+      
     const total = await Article.countDocuments(query);
     
     const result = {
-      articles,
+      articles: articlesWithExcerpt,
       totalPages: Math.ceil(total / limit),
       currentPage: parseInt(page),
       total

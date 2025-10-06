@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route, useLocation, Suspense, lazy } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { Suspense, lazy } from 'react';
 import { ProtectedRoute } from './components/common/ProtectedRoute'
 import Navbar from './components/Navbar';
 import { useSocket } from './hooks/useSocket';

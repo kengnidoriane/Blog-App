@@ -6,7 +6,9 @@ import { Bold,Code,Eye,EyeOff, Italic,ListOrdered, List, Image, Link, Heading,Qu
 import { Button } from './/ButtonForm';
 import { createArticle } from '../services/PostService';
 import { useAuthStore } from '../store/authStore';
+import { useToast } from '../hooks/useToast';
 import TagInput from './TagInput';
+import ToastContainer from './ToastContainer';
 import './css/CreatePostForm.css'
 
 const toolbarActions = [
@@ -85,6 +87,7 @@ function CreatePostForm() {
   const [tags, setTags] = useState([]);
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
+  const { toasts, removeToast, success, error } = useToast();
   
   const title = watch('title', '');
   const content = watch('content', '');
@@ -123,8 +126,8 @@ function CreatePostForm() {
 
   const onSubmit = async (data) => {
     if (!user?.userId) {
-      alert('Vous devez être connecté pour publier un article');
-      navigate('/login');
+      error('Vous devez être connecté pour publier un article');
+      setTimeout(() => navigate('/login'), 2000);
       return;
     }
 
@@ -135,15 +138,18 @@ function CreatePostForm() {
         category: data.category || 'technologie',
         tags: tags
       });
-      navigate('/');
-    } catch (error) {
-      console.error('Erreur lors de la création de l\'article:', error);
-      alert('Erreur lors de la publication de l\'article.');
+      success('Article publié avec succès !');
+      setTimeout(() => navigate('/'), 1500);
+    } catch (err) {
+      console.error('Erreur lors de la création de l\'article:', err);
+      error('Erreur lors de la publication de l\'article.');
     }
   };
 
   return (
-    <div className=" bg-gray-50 p-2">
+    <>
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
+      <div className=" bg-gray-50 p-2">
       <div className="w-full max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
         <div className='flex justify-end mb-1'>
           <button
@@ -267,6 +273,7 @@ function CreatePostForm() {
         </div> 
       </div>
     </div>
+    </>
   );
 }
 

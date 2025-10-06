@@ -20,6 +20,7 @@ const CommentRouter = require('./routes/commentRoutes');
 const UserRouter = require('./routes/userRoutes');
 const NotificationRouter = require('./routes/notificationRoutes');
 const HealthRouter = require('./routes/healthRoutes');
+const SeoRouter = require('./routes/seoRoutes');
 
 
 const app = express();
@@ -89,6 +90,7 @@ app.use('/api/articles/:articleId/comments', CommentRouter);
 app.use('/api/user', UserRouter);
 app.use('/api/notifications', NotificationRouter);
 app.use('/api', HealthRouter);
+app.use('/', SeoRouter);
 
 // Route par défaut pour vérifier le bon fonctionnement de l'API
 app.get('/api', (req, res) => {

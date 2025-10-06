@@ -1,12 +1,38 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import PostList from '../components/PostList';
+import { fetchArticles } from '../services/PostService';
+import ArticleCard from '../components/ArticleCard';
+import { useSEO } from '../hooks/useSEO';
 import { TrendingUp, Clock, Users, BookOpen } from 'lucide-react';
 
 const HomePage = () => {
   const [activeTab, setActiveTab] = useState('recent');
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { isAuthenticated } = useAuthStore();
+  
+  useEffect(() => {
+    loadArticles();
+  }, []);
+  
+  const loadArticles = async () => {
+    try {
+      const data = await fetchArticles();
+      setArticles(data.articles || []);
+    } catch (error) {
+      console.error('Erreur chargement articles:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useSEO({
+    title: 'Accueil',
+    description: 'Découvrez des articles passionnants, partagez vos connaissances et connectez-vous avec une communauté de développeurs sur DevBlog.',
+    keywords: 'blog développement, articles programmation, communauté développeurs, partage connaissances',
+    url: window.location.href
+  });
 
   const tabs = [
     { id: 'recent', label: 'Récents', icon: Clock },
@@ -137,7 +163,38 @@ const HomePage = () => {
             </div>
 
             {/* Articles List */}
-            <PostList />
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
+                <p className="text-gray-500 mt-2">Chargement des articles...</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {articles.length > 0 ? (
+                  articles.map((article) => (
+                    <ArticleCard key={article._id} article={article} />
+                  ))
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="bg-white rounded-lg border border-gray-200 p-8">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <BookOpen className="w-8 h-8 text-gray-400" />
+                      </div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun article disponible</h3>
+                      <p className="text-gray-500 mb-4">Soyez le premier à publier un article !</p>
+                      {isAuthenticated && (
+                        <Link 
+                          to="/create-post"
+                          className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+                        >
+                          Créer un article
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../hooks/useToast';
 import apiArticle from '../services/apiArticle';
 import AuthNotification from './AuthNotification';
+import ToastContainer from './ToastContainer';
 
 const LikeButton = ({ articleId, initialLikes = 0, className = "" }) => {
   const [liked, setLiked] = useState(false);
@@ -10,6 +12,7 @@ const LikeButton = ({ articleId, initialLikes = 0, className = "" }) => {
   const [loading, setLoading] = useState(false);
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
+  const { toasts, removeToast, success, error } = useToast();
 
   useEffect(() => {
     if (user && articleId) {
@@ -40,11 +43,12 @@ const LikeButton = ({ articleId, initialLikes = 0, className = "" }) => {
       const response = await apiArticle.post(`/articles/${articleId}/like`);
       setLiked(response.data.liked);
       setLikesCount(response.data.likesCount);
-    } catch (error) {
-      if (error.response?.status === 403) {
-        alert('Vous ne pouvez pas liker votre propre article');
+    } catch (err) {
+      if (err.response?.status === 403) {
+        error('Vous ne pouvez pas liker votre propre article');
       } else {
-        console.error('Erreur lors du like:', error);
+        error('Erreur lors du like');
+        console.error('Erreur lors du like:', err);
       }
     } finally {
       setLoading(false);
@@ -83,6 +87,7 @@ const LikeButton = ({ articleId, initialLikes = 0, className = "" }) => {
 
   return (
     <>
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
       <button 
         onClick={handleLike}
         disabled={loading}
