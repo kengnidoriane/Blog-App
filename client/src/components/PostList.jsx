@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { fetchArticles } from '../services/PostService';
-import { Grid, Card, CardContent, Typography, CardActions, Button, Box } from '@mui/material';
-// import PostItem from './PostItem';
+import ArticleCard from './ArticleCard';
 
 const PostList = () => {
   const [articles, setArticles] = useState([]);
@@ -12,8 +11,10 @@ const PostList = () => {
     const getArticles = async () => {
       try {
         const data = await fetchArticles();
-        setArticles(data);
-        console.log(data);
+        // L'API retourne { articles: [...], totalPages, currentPage, total }
+        const articlesArray = data.articles || data;
+        setArticles(Array.isArray(articlesArray) ? articlesArray : []);
+        console.log('Articles récupérés:', articlesArray);
         
       } catch (err) {
         setError(err)
@@ -34,36 +35,25 @@ const PostList = () => {
   }
 
   return (
-    <Grid container spacing={4} className='p-4' >
-      {articles.map((post) => (
-        <Grid item key={post._id} xs={12} sm={6} md={4} className='m-2'>
-            <Card>
-              <CardContent className=' bg-slate-500'>
-                <Box className='flex flex-row gap-3 m-2'>
-                  <div className=' bg-blue-50 rounded max-h-8'>
-                    {
-                      (post.image) ? <img src={post.image}/> : <span>M</span>
-                    }
-                  </div>
-                  <div className='flex flex-col'>
-                    <span>{post.author}</span>
-                    <span>{post.createDate}</span>
-                  </div>
-                </Box>
-                <Typography variant="h5" component="div">
-                  {post.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {post.content}
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Button size="small" href={`/post/${post._id}`}>Lire Plus</Button>
-              </CardActions>
-            </Card>
-         </Grid>
-      ))}
-    </Grid>
+    <div className="max-w-4xl mx-auto space-y-4">
+      {articles && articles.length > 0 ? (
+        articles.map((article) => (
+          <ArticleCard key={article._id} article={article} />
+        ))
+      ) : (
+        <div className="text-center py-12">
+          <div className="bg-white rounded-lg border border-gray-200 p-8">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun article disponible</h3>
+            <p className="text-gray-500">Soyez le premier à publier un article !</p>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

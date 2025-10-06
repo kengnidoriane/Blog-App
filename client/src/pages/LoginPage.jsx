@@ -1,109 +1,87 @@
-import { useState, } from 'react';
-import { useNavigate, Link  } from 'react-router-dom';
-import {useAuth} from '../context/AuthContext';
-import { authService } from '../services/api'
-// import { validateEmail, validatePassword } from '../utils/validators';
-import { Box, Stack, TextField, Button, Typography } from '@mui/material';
-import secure from '../assets/secure.png'
-import Logo from '../assets/logo1.png'
-
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuthStore } from '../store/authStore';
+import { authService } from '../services/api';
+import { loginSchema } from '../lib/validations';
+import secure from '../assets/secure.png';
+import Logo from '../assets/logo1.png';
 
 const LoginPage = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+  const { register, handleSubmit, formState: { errors, isSubmitting }, setError } = useForm({
+    resolver: zodResolver(loginSchema),
   });
-
-  const [error, setError] = useState('');
-  const { dispatch } =  useAuth();
+  
+  const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-  
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-
+  const onSubmit = async (data) => {
     try {
-      const response = await authService.login(formData);
-      dispatch({
-        type: 'LOGIN',
-        payload: {
-          user: response.user,
-          token: response.token
-        }
-      });
+      const response = await authService.login(data);
+      console.log('Response login:', response.data);
+      login(response.data);
       navigate('/');
+    } catch (err) {
+      setError('root', {
+        message: err.response?.data?.message || 'Une erreur est survenue'
+      });
     }
-    catch (err) {
-      setError(err.response?.data?.message || 'Une errreur est survenue')
-    }
-    // await axios.post('http://localhost:5000/api/')
   };
   
 
   return (
-    <Stack 
-    direction={'row'}
-  
-    alignItems={'center'}
-    justifyContent={'center'}
-    height={'100vh'}
-    width={'100vw'}
-     >
-      <Box  className='hidden md:flex h-full w-1/2 flex-col gap-4 items-center justify-center'>
-          <img src={secure} alt="Connexion Image" />
-      </Box>
-      <Stack className='h-full w-full md:w-1/2 flex flex-col gap-8 items-center justify-evenly bg-[#def3df]'>
-        <Box >
-          <img src={Logo} alt="" className='w-24 rounded-lg mb-3'/>
-        </Box>
-        <Stack
-          width={'60%'}
-          gap={10}
-          className='h-2/5 w-96 border '
-        >
-        <Typography variant='h4' textAlign={'center'} className='mb-8 sm:mb-4 text-center'>Log In</Typography>
-        {error && (
-          <div className="bg-red-100 text-red-700 p-3 rounded">{error}</div>
-        )}
-        <form action="post" onSubmit={handleSubmit}>
-        <Stack direction={"column"} gap={4}>
-          <TextField 
-                     id="outlined-basic" 
-                     label="Email" 
-                     variant="outlined" 
-                     type='email' 
-                     onChange={handleChange}
-                     required />
-          <TextField id="outlined-basic" 
-                     label="Password" 
-                     variant="outlined" 
-                     type='password'  
-                     onChange={handleChange}
-                     required />
-          <Button   style={{
-            backgroundColor: "#007b2d",
-            padding: "12px 36px",
-            fontSize: "18px"
-            }} 
-            variant="contained" 
-            type='submit' 
-            className='connexion__button'>Log in</Button>
-        </Stack>
-        </form>
-      </Stack> 
-      <p className='text-md mt-4'>Dont have an account yet please <Link to="/signup" className='text-blue-500 underline font-medium'>Sign Up</Link> </p>
-    </Stack>
-     
-   </Stack>
+    <div className="flex h-screen">
+      <div className="hidden md:flex w-1/2 items-center justify-center">
+        <img src={secure} alt="Connexion Image" className="max-w-md" />
+      </div>
+      <div className="flex w-full md:w-1/2 flex-col items-center justify-center bg-green-50 p-8">
+        <div className="mb-8">
+          <img src={Logo} alt="Logo" className="w-24 rounded-lg" />
+        </div>
+        <div className="w-full max-w-md space-y-6">
+          <h1 className="text-3xl font-bold text-center">Log In</h1>
+          {errors.root && (
+            <div className="bg-red-100 text-red-700 p-3 rounded">
+              {errors.root.message}
+            </div>
+          )}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+              <input
+                {...register('email')}
+                type="email"
+                placeholder="Email"
+                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+              )}
+            </div>
+            <div>
+              <input
+                {...register('password')}
+                type="password"
+                placeholder="Password"
+                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+              )}
+            </div>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-green-700 text-white p-3 rounded-md hover:bg-green-800 disabled:opacity-50"
+            >
+              {isSubmitting ? 'Connexion...' : 'Log in'}
+            </button>
+          </form>
+          <p className="text-center">
+            Dont have an account yet? <Link to="/signup" className="text-blue-500 underline">Sign Up</Link>
+          </p>
+        </div>
+      </div>
+    </div>
  
   );
 };

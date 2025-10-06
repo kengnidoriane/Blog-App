@@ -1,21 +1,24 @@
-// src/pages/CreatePostPage.js
 import CreatePostForm from '../components/CreatePostForm';
-// import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../store/authStore';
+import AuthPrompt from '../components/AuthPrompt';
 
 const CreatePostPage = () => {
-  
+  const { isAuthenticated } = useAuthStore();
 
-  // const navigate = useNavigate();
-
-  // const handleBack = () => {
-  //   navigate(-1);
-  // };
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="max-w-md w-full">
+          <AuthPrompt action="créer un article" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Créer un nouveau post</h1>
       <CreatePostForm />
-      
     </div>
   );
 };

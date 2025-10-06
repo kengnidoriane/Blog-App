@@ -1,8 +1,14 @@
-
 import { useState } from 'react';
-import { marked } from 'marked'
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { marked } from 'marked';
 import { Bold,Code,Eye,EyeOff, Italic,ListOrdered, List, Image, Link, Heading,Quote,EllipsisVertical,Table, Underline,Strikethrough, CircleHelp } from 'lucide-react';
-import { Button } from './/ButtonForm'; 
+import { Button } from './/ButtonForm';
+import { createArticle } from '../services/PostService';
+import { useAuthStore } from '../store/authStore';
+import { useToast } from '../hooks/useToast';
+import TagInput from './TagInput';
+import ToastContainer from './ToastContainer';
 import './css/CreatePostForm.css'
 
 const toolbarActions = [
@@ -75,10 +81,18 @@ const toolbarActions = [
 
 
 function CreatePostForm() {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const { register, handleSubmit, watch, setValue, formState: { isSubmitting } } = useForm();
   const [showMore, setshowMore] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [tags, setTags] = useState([]);
+  const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
+  const { toasts, removeToast, success, error } = useToast();
+  
+  const title = watch('title', '');
+  const content = watch('content', '');
+
+
 
 
   const createMarkdownPreview = () => {
@@ -98,9 +112,8 @@ function CreatePostForm() {
         newText +
         textarea.value.substring(end);
       
-      setContent(newContent);
+      setValue('content', newContent);
 
-      // Attendre le prochain cycle pour définir la sélection
       setTimeout(() => {
         textarea.focus();
         textarea.setSelectionRange(
@@ -111,14 +124,32 @@ function CreatePostForm() {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const html = marked(content)
-    console.log({title, html });
+  const onSubmit = async (data) => {
+    if (!user?.userId) {
+      error('Vous devez être connecté pour publier un article');
+      setTimeout(() => navigate('/login'), 2000);
+      return;
+    }
+
+    try {
+      await createArticle({
+        title: data.title,
+        content: data.content,
+        category: data.category || 'technologie',
+        tags: tags
+      });
+      success('Article publié avec succès !');
+      setTimeout(() => navigate('/'), 1500);
+    } catch (err) {
+      console.error('Erreur lors de la création de l\'article:', err);
+      error('Erreur lors de la publication de l\'article.');
+    }
   };
 
   return (
-    <div className=" bg-gray-50 p-2">
+    <>
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
+      <div className=" bg-gray-50 p-2">
       <div className="w-full max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
         <div className='flex justify-end mb-1'>
           <button
@@ -141,11 +172,36 @@ function CreatePostForm() {
         </div>
         <div className='grid grid-cols-1'>
             <div className={` ${showPreview ? 'hidden' : 'block'}`}>
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div className="space-y-2">
-                  <input className="w-full  text-4xl font-medium text-gray-700 mt-10 mb-10 outline-none" 
-                        placeholder='Title of the new Post here ...'
-                        onChange={(e) => setTitle(e.target.value)} />
+                  <input 
+                    {...register('title', { required: 'Le titre est requis' })}
+                    className="w-full text-4xl font-medium text-gray-700 mt-10 mb-6 outline-none" 
+                    placeholder='Title of the new Post here ...'
+                  />
+                  
+                  {/* Catégorie */}
+                  <div className="mb-6">
+                    <select 
+                      {...register('category')}
+                      className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    >
+                      <option value="technologie">Technologie</option>
+                      <option value="lifestyle">Lifestyle</option>
+                      <option value="business">Business</option>
+                      <option value="sante">Santé</option>
+                      <option value="education">Education</option>
+                      <option value="divertissement">Divertissement</option>
+                    </select>
+                  </div>
+                  
+                  {/* Tags */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Tags
+                    </label>
+                    <TagInput tags={tags} setTags={setTags} />
+                  </div>
                    
                   <div className="relative flex justify-between gap-2 p-2 bg-gray-50">
                     <div>
@@ -186,8 +242,7 @@ function CreatePostForm() {
                   </div>
 
                   <textarea
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
+                    {...register('content', { required: 'Le contenu est requis' })}
                     onClick={() => setshowMore(false)}
                     placeholder="Contenu de l'article (format Markdown)"
                     className="w-full h-[calc(100vh-400px)] p-4 border border-gray-300 rounded-b-md font-mono focus:outline-none resize-none"
@@ -197,9 +252,10 @@ function CreatePostForm() {
                 <div className="flex justify-start">
                   <button 
                     type="submit"
-                    className="bg-green-800 hover:bg-green-700 text-white px-6 py-2 rounded-md "
+                    disabled={isSubmitting}
+                    className="bg-green-800 hover:bg-green-700 disabled:opacity-50 text-white px-6 py-2 rounded-md"
                   >
-                    Publier
+                    {isSubmitting ? 'Publication...' : 'Publier'}
                   </button>
                 </div>
               </form> 
@@ -217,6 +273,7 @@ function CreatePostForm() {
         </div> 
       </div>
     </div>
+    </>
   );
 }
 

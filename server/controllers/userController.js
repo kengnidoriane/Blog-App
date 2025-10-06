@@ -26,7 +26,7 @@ const handleValidationErrors = (req, res, next) => {
 
 // Fonction pour générer un token JWT
 const generateToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
+  return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '24h' });
 };
 
 // Inscription d'un utilisateur
@@ -62,7 +62,7 @@ exports.registerUser = [
         username,
         email,
         password: hashedPassword,
-        image,
+        image: image || null, // Image optionnelle
       });
 
       // Sauvegarder l'utilisateur dans la base de données
@@ -79,9 +79,11 @@ exports.registerUser = [
       })
 
       res.status(201).json({
+        success: true,
         userId: savedUser._id,
         username: savedUser.username,
         email: savedUser.email,
+        name: savedUser.name,
         token,
       });
     } catch (error) {
@@ -123,8 +125,11 @@ exports.loginUser = async (req, res) => {
     });
 
     res.status(200).json({
+      success: true,
       userId: existingUser._id,
+      username: existingUser.username,
       email: existingUser.email,
+      name: existingUser.name,
       token,
     });
   } catch (error) {
@@ -152,13 +157,22 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user._id)
+      .select('-password')
+      .populate('followers', 'name username')
+      .populate('following', 'name username');
+      
     if (!user) {
       return res.status(404).json({message: 'Utilisateur non trouve'})
     }
-    res.json(user)
+    
+    res.json({
+      ...user.toObject(),
+      followersCount: user.followers.length,
+      followingCount: user.following.length
+    });
   } catch (error) {
-    res.status(500).json({message: error})
+    res.status(500).json({message: error.message})
   }
 }
 
@@ -171,7 +185,7 @@ const findUserById = async (id) => {
 exports.followUser = async (req, res) => {
   try {
     const { userId } = req.params; // ID de l'utilisateur à suivre
-    const { currentUserId } = req.body;
+    const currentUserId = req.user._id;
 
     const userToFollow = await findUserById(userId);
     const currentUser = await findUserById(currentUserId);
@@ -202,7 +216,7 @@ exports.followUser = async (req, res) => {
 exports.unFollowUser = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { currentUserId } = req.body;
+    const currentUserId = req.user._id;
 
     const userToUnfollow = await findUserById(userId);
     const currentUser = await findUserById(currentUserId);

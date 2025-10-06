@@ -1,10 +1,56 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
+    
+    <!-- SEO Meta Tags -->
+    <title>DevBlog - Partagez vos idées avec le monde</title>
+    <meta name="description" content="Plateforme de blog pour développeurs. Partagez vos connaissances, découvrez des articles passionnants et connectez-vous avec une communauté de développeurs." />
+    <meta name="keywords" content="blog, développement, programmation, technologie, articles, communauté, développeurs" />
+    <meta name="author" content="DevBlog" />
+    <meta name="robots" content="index, follow" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="DevBlog - Partagez vos idées avec le monde" />
+    <meta property="og:description" content="Plateforme de blog pour développeurs. Partagez vos connaissances et connectez-vous avec une communauté." />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:url" content="https://devblog.com" />
+    <meta property="og:site_name" content="DevBlog" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="DevBlog - Partagez vos idées avec le monde" />
+    <meta name="twitter:description" content="Plateforme de blog pour développeurs. Partagez vos connaissances et connectez-vous avec une communauté." />
+    <meta name="twitter:image" content="/og-image.png" />
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://devblog.com" />
+    
+    <!-- Theme color -->
+    <meta name="theme-color" content="#16a34a" />
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "DevBlog",
+      "description": "Plateforme de blog pour développeurs",
+      "url": "https://devblog.com",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://devblog.com/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
