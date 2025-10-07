@@ -21,6 +21,8 @@ dist-ssr
 
 # Editor directories and files
 .vscode/*
+.kiro/*
+.idea/*
 !.vscode/extensions.json
 .idea
 .idea/*
@@ -38,3 +40,7 @@ dist-ssr
 .env.test
 **/.env
 **/.env.*
+AUTHENTICATION_SUMMARY.md
+IMPLEMENTATION_DETAILS.md
+DEPLOYMENT_GUIDE.md
+NON_FUNCTIONAL_REQUIREMENTS.md
