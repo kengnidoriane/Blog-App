@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { authService } from '../services/api';
+import { authService } from '../services/Api.js';
 import { loginSchema } from '../lib/validations';
 import secure from '../assets/secure.png';
 import Logo from '../assets/logo1.png';

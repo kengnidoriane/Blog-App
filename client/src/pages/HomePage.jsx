@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { fetchArticles } from '../services/PostService';
+import { fetchArticles } from '../services/PostService.js';
 import ArticleCard from '../components/ArticleCard';
 import { useSEO } from '../hooks/useSEO';
 import { TrendingUp, Clock, Users, BookOpen } from 'lucide-react';

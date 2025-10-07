@@ -5,7 +5,7 @@ import { useToast } from '../hooks/useToast';
 import { UserPlus, UserCheck } from 'lucide-react';
 import CommentSection from '../components/CommentSection';
 import ToastContainer from '../components/ToastContainer';
-import apiArticle from '../services/apiArticle';
+import apiArticle from '../services/apiArticle.js';
 
 const SinglePostPage = () => {
   const { postId } = useParams();

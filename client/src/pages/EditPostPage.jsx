@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useAuthStore } from '../store/authStore';
 import TagInput from '../components/TagInput';
-import { updateArticle, getArticleById } from '../services/PostService';
+import { updateArticle, getArticleById } from '../services/PostService.js';
 import AuthPrompt from '../components/AuthPrompt';
 
 const EditPostPage = () => {

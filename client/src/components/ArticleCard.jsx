@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useToast } from '../hooks/useToast';
 import ToastContainer from './ToastContainer';
-import apiArticle from '../services/apiArticle';
+import apiArticle from '../services/apiArticle.js';
 
 const ArticleCard = ({ article }) => {
   const [isLiked, setIsLiked] = useState(false);

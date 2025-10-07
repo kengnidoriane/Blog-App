@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useNavigate } from 'react-router-dom';
-import apiArticle from '../services/apiArticle';
+import apiArticle from '../services/apiArticle.js';
 import AuthPrompt from './AuthPrompt';
 
 const CommentItem = ({ comment, onReply, onLike, user, level = 0 }) => {

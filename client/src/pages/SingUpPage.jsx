@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import AuthService from '../services/AuthService';
+import AuthService from '../services/AuthService.js';
 import { signupSchema } from '../lib/validations';
 import Logo from '../assets/logo1.png';
 import signup from '../assets/signUpImage.png';

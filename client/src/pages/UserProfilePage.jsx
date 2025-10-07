@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import PostList from '../components/PostList';
 import { useAuthStore } from '../store/authStore';
-import { getUserProfile, getFollowers, getFollowing } from '../services/UserService';
-import { fetchArticles } from '../services/PostService';
+import { getUserProfile, getFollowers, getFollowing } from '../services/UserService.js';
+import { fetchArticles } from '../services/PostService.js';
 
 const UserProfilePage = () => {
   const { user, refreshUserProfile } = useAuthStore();
