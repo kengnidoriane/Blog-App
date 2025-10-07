@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { fetchArticles } from '../services/PostService';
+import { fetchArticles } from '../services/PostService.js';
 import ArticleCard from './ArticleCard';
 
 const PostList = () => {

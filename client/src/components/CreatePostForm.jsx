@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { marked } from 'marked';
 import { Bold,Code,Eye,EyeOff, Italic,ListOrdered, List, Image, Link, Heading,Quote,EllipsisVertical,Table, Underline,Strikethrough, CircleHelp } from 'lucide-react';
 import { Button } from './/ButtonForm';
-import { createArticle } from '../services/PostService';
+import { createArticle } from '../services/PostService.js';
 import { useAuthStore } from '../store/authStore';
 import { useToast } from '../hooks/useToast';
 import TagInput from './TagInput';

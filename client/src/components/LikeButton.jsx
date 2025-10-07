@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../hooks/useToast';
-import apiArticle from '../services/apiArticle';
+import apiArticle from '../services/apiArticle.js';
 import AuthNotification from './AuthNotification';
 import ToastContainer from './ToastContainer';
 

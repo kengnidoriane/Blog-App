@@ -1,4 +1,4 @@
-import apiArticle from './apiArticle';
+import apiArticle from './apiArticle.js';
 
 export const followUser = async (userId) => {
   try {
